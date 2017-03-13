@@ -243,14 +243,11 @@ The following CNNs were tested:
 The general principle follows the architecture of
 Gordo et al~\cite{gordo_deep_2016}, omitting the region pooling:
 We use the convolutional features of a pre-trained CNN.
-These features are $L2$-normalized, then a fully connected layer
-is introduced to reduce the feature dimension and the features are
+These features are $L2$-normalized, then a shifting layer and
+fully connected layer are introduced to reduce the
+feature dimension and the features are
 $L2$-normalized again. This is similar to the architecture of
 Schroff et al~\cite{schroff_facenet:_2015}, too.
-
-We also omit the scaling+shifting layer of
-Gordo et al~\cite{gordo_deep_2016} since we cannot clearly
-understand the motivation behind this layer (TODO find out).
 
 Most importantly, we use a Siamese architecture along with a cosine
 similarity loss. The loss is defined as follows for two images and
@@ -275,6 +272,16 @@ discriminate between two inputs, rather than simply output the class or
 instance of an input.
 Because of the missing variability for each instance, a classification
 architecture will over-fit the dataset more than a Siamese architecture.
+
+As described above, we omit the region pooling layer. There are two
+reasons behind this: First, we only use images of the same size
+as inputs, so we do not need to harmonize between different images.
+Second, the images in our datasets are cleaner than images in the
+datasets used by Gordo et al (Oxford5k, Paris6k, \dots), in the sense
+that the objects are usually well centered in the images and fill out
+most of the image. In other datasets, the objects searched for
+only form a small part of the image. In this case, the rest of the image
+is noise, making the network more difficult or impossible to train.
 
 \subsubsection{Specifics}
 All images are resized to $227 \times 227$, using a nearest neighbor
@@ -305,7 +312,7 @@ The following CNNs were tested:
 
 \subsection{Features of a fine-tuned Siamese CNN using a triplet loss}
 This resembles the architecture of Gordo et al~\cite{gordo_deep_2016}
-the most: only region pooling and shifting of the features is omitted.
+the most: only region pooling of the convolutional features is omitted.
 
 The loss is defined for an anchor image, a reference positive image and
 a reference negative image and their feature vectors $x_a$, $x_p$, $x_n$
@@ -321,7 +328,9 @@ between the vectors is closely related to the cosine similarity:
 $\| x_1 - x_2 \|_2^2 = 2-2x_1x_2 = 2-2cos(x_1,x_2)$.
 So the loss could be written as
 $\max(0, x_ax_n - x_ax_p + margin^{\star})$ with
-$margin^{\star} = \frac{1}{2} margin$.
+$margin^{\star} = \frac{1}{2} margin$. Both versions of the loss
+are implemented, but we chose the margin $margin^{\star}$ as basis
+since in our case, feature vectors are always normalized.
 
 \subsubsection{Motivation}
 The motivation behind using the triplet loss is laid out in the paper
@@ -370,15 +379,30 @@ Currently, we need to figure out why there are discrepancies between
 our results and CORIA results... TODO (add visualizations to see what goes wrong etc)
 
 \section{Future work}
+Propose new approach based on the problems found from analyzing current
+systems/approaches.
+Motivation: current approaches seem to give far from optimal results
+
+Possibly create new dataset (based on images of museum art pieces)
+Motivation: CLICIDE dataset is particularly suited for ORB. GaRoFou
+dataset is very small. This makes it difficult, but it might not be
+a good indicator of performance in general (the smaller the dataset,
+the higher the risk of over-fitting).
+A better dataset would be one with more images
+(and proportionally more instances) and a better harmonization of
+query vs reference images: reference images should be clean and from
+all angles of the object, query images should not be clean, blurred,
+only small parts of the image contains object to find etc.
+
 TODO
+
+\bibliographystyle{ieeetr}
+\bibliography{siamese}
 
 \newpage
 \appendix
 \section{Implementation details and specifics}
 PyTorch
 specific issues: large images/large batch sizes/large nets -> lots of memory
-
-\bibliographystyle{ieeetr}
-\bibliography{siamese}
 
 \end{document}
