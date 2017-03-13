@@ -24,7 +24,7 @@
 \maketitle
 
 This report serves as a status report for the internship on
-siamese networks for instance retrieval,
+Siamese networks for instance retrieval,
 supervised by Georges Quénot and Jean-Pierre Chevallet,
 in collaboration with Maxime Portaz.
 
@@ -49,7 +49,7 @@ there is almost no variability within the classes,
 as they are in fact a single object.
 So the objective is to focus more on differentiating between objects,
 rather than predicting the type of object.
-Thus for a given query image, we try to tell how much it ressembles each
+Thus for a given query image, we try to tell how much it resembles each
 image of the reference dataset.
 
 \section{State of the art}
@@ -70,7 +70,7 @@ engineered features (bag-of-words combined with
 support vector machines or SVMs) to a more end-to-end learning of
 the matching of two images.
 
-For this, the siamese architecture is used, where the convolutional
+For this, the Siamese architecture is used, where the convolutional
 features of two or more CNNs with shared weights are combined and a
 multi-way loss is optimized, which discriminates between the features
 of two or more images.
@@ -91,7 +91,7 @@ and finally Inception~\cite{szegedy_inception-v4_2016} and
 ResNet~\cite{he_deep_2015}.
 
 The higher depth of networks like ResNet and Inception as compared to
-AlexNet allows for higher regularization and thus less overfitting
+AlexNet allows for higher regularization and thus less over-fitting
 to a specific dataset for these architectures. Batch normalization
 increases this effect even more. This is a desirable trait for image
 retrieval, as the variability within each instance is too small to
@@ -110,7 +110,7 @@ We are using the following datasets in our experiments:
     Number of reference images: 3245
     Number of test images: 177
     Number of instances: 464
-    \item GaRoFou_I: dataset of photographs of an art museum,
+    \item GaRoFou\_I: dataset of photographs of an art museum,
     consisting of display cabinets, which contain sculptures,
     rocks and various types of objects.
 
@@ -132,21 +132,245 @@ We are using the following datasets in our experiments:
 \end{enumerate}
 
 \subsection{Evaluation metrics}
-As of now, we use the top-1 precision to evaluate the system.
+\subsubsection{Metrics definitions}
+\paragraph{$Precision@k$}
+For a test image and $m$ reference images and a ranking of the
+reference images $Im_1, \dots, Im_m$, we define the number of relevant
+images at $k$ with $k \leq m$:
+$N^{rel}_k$ is the number of images in the sub-ranking
+$Im_1, \dots, Im_k$ from the same instance than the test image.
 
-We plan on using the MAP score as well in the future.
+We then define Precision at $k$ as:
+
+\begin{equation}
+Precision@k = \frac{N^{rel}_k}{k}
+\end{equation}
+
+\paragraph{MAP}
+As above, for a test image, $m$ reference images and a ranking
+of the reference images, we define the average precision:
+
+\begin{equation}
+AP = \frac{1}{N^{rel}_m} \sum_{k=1}^m Precision@k
+\end{equation}
+
+The MAP score is defined as the mean of the AP score over all test images.
+
+\subsubsection{Used metrics}
+As of now, we use the mean $Precision@1$ to evaluate the system.
+It is the mean of the $Precision@1$ for all test images.
+This is what we are most interested in: in the context of a
+search system for retrieving art in a museum, we are only
+interested in one result, as the user should not make a choice
+out of several results.
+
+To be comparable with other papers in the field, we will implement
+the MAP score as well later on.
 
 \section{Methodology}
-
 The following approaches have been tested:
-TODO
-Different approaches (nets + only classif or more...)
-Data augmentation ?
-Triplet selection ?
+
+\subsection{Full classification features of a pre-trained CNN}
+We use the features obtained from the last layer of a CNN
+that was pre-trained on ImageNet. The feature dimension is thus
+fixed at 1000, the number of classes in ImageNet.
+\subsubsection{Motivation}
+This is to set a baseline for other approaches and to reproduce results
+from a previous paper (TODO cite CORIA paper).
+\subsubsection{Specifics}
+All images are resized to $227 \times 227$, using a nearest neighbor
+re-sampling filter. This is to fit the default input dimensions of
+a CNN used in ImageNet.
+
+The following CNNs were tested:
+\begin{enumerate}
+    \item AlexNet
+    \item ResNet-152
+\end{enumerate}
+\subsection{Convolutional features of a pre-trained CNN}
+We use the features obtained from the last convolutional or pooling
+layer of a CNN, pre-trained on ImageNet. The feature dimension depends
+on the CNN and is added below in the specifics section.
+\subsubsection{Motivation}
+Convolutional features should perform better than full classification
+features as we are not interested in capturing the class of objects in
+the images, but only in capturing the various shapes and see if they
+are similar in two images.
+\subsubsection{Specifics}\label{sec:convspec}
+All images are resized to $227 \times 227$, using a nearest neighbor
+re-sampling filter.
+
+The following CNNs were tested:
+\begin{enumerate}
+    \item AlexNet (feature dimension $6 \times 6 \times 256 = 9216$)
+    \item ResNet-152 (feature dimension $8 \times 8 \times 2048 =131072$)
+\end{enumerate}
+
+\subsection{Convolutional features of a fine-tuned CNN}
+We use the features obtained from the last convolutional or pooling layer
+of a CNN, pre-trained on ImageNet, then fine-tuned
+as a classification net on the reference dataset.
+
+The feature dimensions are as described in Section~\ref{sec:convspec}.
+\subsubsection{Motivation}
+We choose convolutional features since they should perform better than
+classification features. However, the high-level convolutions can be
+fine-tuned to our dataset such that the high-level filters can capture
+the shapes of that dataset better.
+\subsubsection{Specifics}
+All images are resized to $227 \times 227$, using a nearest neighbor
+re-sampling filter.
+
+For fine-tuning the CNN on classification, we use the following settings:
+\begin{enumerate}
+    \item Data augmentation: all images are shifted (in range $[-20\%, 20\%]$ in both directions), rotated (in range $[-45, 45]$ degrees), rescaled (with factor in range $[0.8, 1.2]$) and horizontally flipped at random.
+    All parameters are chosen from a uniform distribution.
+
+    The motivation behind the extensive data augmentation is that
+    the training set is very small, so without data augmentation,
+    large CNNs like AlexNet would over-fit the dataset.
+    \item Learning rate: TODO
+    \item TODO
+\end{enumerate}
+
+The following CNNs were tested:
+\begin{enumerate}
+    \item AlexNet (only last convolutional layer is fine-tuned)
+    \item ResNet-152 (last 3 blocks are fine-tuned)
+\end{enumerate}
+
+\subsection{Features of a fine-tuned Siamese CNN using cosine similarity loss}
+The general principle follows the architecture of
+Gordo et al~\cite{gordo_deep_2016}, omitting the region pooling:
+We use the convolutional features of a pre-trained CNN.
+These features are $L2$-normalized, then a fully connected layer
+is introduced to reduce the feature dimension and the features are
+$L2$-normalized again. This is similar to the architecture of
+Schroff et al~\cite{schroff_facenet:_2015}, too.
+
+We also omit the scaling+shifting layer of
+Gordo et al~\cite{gordo_deep_2016} since we cannot clearly
+understand the motivation behind this layer (TODO find out).
+
+Most importantly, we use a Siamese architecture along with a cosine
+similarity loss. The loss is defined as follows for two images and
+their feature vectors $x_1$ and $x_2$:
+
+\begin{equation}
+\mathcal{L} =
+\begin{cases}
+1 - cos(x_1, x_2) & \text{if the images are from the same instance}\\
+\max(0, cos(x_1, x_2) - margin) & \text{if the images are from different instances}
+\end{cases}
+\end{equation}
+
+$cos(x_1, x_2) = \frac{x_1 x_2}{\|x_1\|_2 \|x_2\|_2}$. For normalized
+vectors, we have $cos(x_1, x_2) = x_1 x_2$, so the cosine similarity is
+simply the dot product here.
+
+\subsubsection{Motivation}
+On small datasets, Siamese architectures should be able to obtain better
+results than classification architectures as they are fine-tuned to
+discriminate between two inputs, rather than simply output the class or
+instance of an input.
+Because of the missing variability for each instance, a classification
+architecture will over-fit the dataset more than a Siamese architecture.
+
+\subsubsection{Specifics}
+All images are resized to $227 \times 227$, using a nearest neighbor
+re-sampling filter. The margin in the loss is set to 0.
+
+For fine-tuning the Siamese CNN, we use the following settings:
+\begin{enumerate}
+    \item Data augmentation: TODO
+    \item Learning rate: TODO
+    \item TODO
+\end{enumerate}
+
+The following choices of the pairs of images for training were tested:
+\begin{enumerate}
+    \item Choose all positive pairs and randomly choose negative pairs
+    such that $90\%$ of the training set consists of negative pairs
+    \item Choose all positive pairs and for each image, choose the
+    'hardest' $x$ negative pairs: the pairs giving the highest loss.
+    This choice of the hardest pairs is repeated before each epoch
+    during training.
+\end{enumerate}
+
+The following CNNs were tested:
+\begin{enumerate}
+    \item AlexNet (only last convolutional layer is fine-tuned)
+    \item ResNet-152 (last 3 blocks are fine-tuned)
+\end{enumerate}
+
+\subsection{Features of a fine-tuned Siamese CNN using a triplet loss}
+This resembles the architecture of Gordo et al~\cite{gordo_deep_2016}
+the most: only region pooling and shifting of the features is omitted.
+
+The loss is defined for an anchor image, a reference positive image and
+a reference negative image and their feature vectors $x_a$, $x_p$, $x_n$
+respectively:
+
+\begin{equation}
+\mathcal{L} = \frac{1}{2}
+\max(0, \| x_a - x_p \|_2^2 - \| x_a - x_n \|_2^2 + margin)
+\end{equation}
+
+For normalized feature vectors $x_1$, $x_2$, the distance $\| x_1 - x_2\|$
+between the vectors is closely related to the cosine similarity:
+$\| x_1 - x_2 \|_2^2 = 2-2x_1x_2 = 2-2cos(x_1,x_2)$.
+So the loss could be written as
+$\max(0, x_ax_n - x_ax_p + margin^{\star})$ with
+$margin^{\star} = \frac{1}{2} margin$.
+
+\subsubsection{Motivation}
+The motivation behind using the triplet loss is laid out in the paper
+by Weinberger et al~\cite{weinberger_distance_2006}, who first introduced
+this loss, as well as the paper by Schroff et al~\cite{schroff_facenet:_2015}.
+Essentially, this loss is more robust w.r.t. noise in the data, as
+we cannot always perfectly project all couples of images of the same
+instance onto the same point in space, when we have noisy data.
+
+\subsubsection{Specifics}
+All images are resized to $227 \times 227$, using a nearest neighbor
+re-sampling filter. The margin in the loss is set to 0.
+
+For fine-tuning the Siamese CNN, we use the following settings:
+\begin{enumerate}
+    \item Data augmentation: TODO
+    \item Learning rate: TODO
+    \item TODO
+\end{enumerate}
+
+The following choices of the triplets of images for training were tested:
+\begin{enumerate}
+    \item Choose all positive pairs and randomly choose a negative pair
+    for each positive pair to form a triplet.
+    \item Choose all positive pairs and for each image, choose the
+    'hardest' negative pair to form a triplet.
+    \item Choose all positive pairs and for each image, choose 'semi-hard'
+    negatives early on in training, then choose only the 'hardest'
+    negatives. This is motivated by Schroff et al~\cite{schroff_facenet:_2015}.
+    \item Choose the easiest positives along with the hardest negatives.
+    This is motivated by the strategy of Gordo et al~\cite{gordo_deep_2016}.
+    TODO add more precise strategy (see mail)
+\end{enumerate}
+
+The following CNNs were tested:
+\begin{enumerate}
+    \item AlexNet (only last convolutional layer is fine-tuned)
+    \item ResNet-152 (last 3 blocks are fine-tuned)
+\end{enumerate}
 
 \section{Results}
-Current results for each approach
+Current results for each approach will be added here.
 
+\section{Current work}
+Currently, we need to figure out why there are discrepancies between
+our results and CORIA results... TODO (add visualizations to see what goes wrong etc)
+
+\section{Future work}
+TODO
 
 \newpage
 \appendix
