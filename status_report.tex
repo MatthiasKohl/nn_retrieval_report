@@ -377,6 +377,12 @@ Current results for each approach will be added here.
 \section{Current work}
 Currently, we need to figure out why there are discrepancies between
 our results and CORIA results... TODO (add visualizations to see what goes wrong etc)
+TODO:
+- show simple gradient for single filter activation -> class saliency
+extraction
+- optimize response of filter + regularized image by gradient descent
+(keep weights fixed)
+for this, see paper by Simonyan et al 'Deep Inside Convolutional Networks..'
 
 \section{Future work}
 Propose new approach based on the problems found from analyzing current
@@ -393,6 +399,10 @@ A better dataset would be one with more images
 query vs reference images: reference images should be clean and from
 all angles of the object, query images should not be clean, blurred,
 only small parts of the image contains object to find etc.
+
+Possibly investigate few-shots training approaches: this tries to
+solve classification with only very few images per class. It does not
+require pre-trained nets.
 
 TODO
 
