@@ -99,7 +99,7 @@ learn classification directly. So the better we can generalize
 features learned from a bigger dataset to the reference dataset,
 the better performance we can expect.
 
-\section{Evaluation}
+\section{Evaluation}\label{sec:eval}
 We are using the following datasets in our experiments:
 \begin{enumerate}
     \item CLICIDE: dataset of photographs taken in an art museum,
@@ -107,15 +107,18 @@ We are using the following datasets in our experiments:
     because the different images for each instance consist of one
     global view of the instance and multiple sub-parts.
 
-    Number of reference images: 3245
-    Number of test images: 177
+    Number of reference images: 3245 (the full dataset contains
+    3452 images with 207 images of walls and no meaningful instance)
+    Number of test images: 165 (the full dataset contains 177
+    test images, out of which 165 share their instance with
+    at least one image of the reference set)
     Number of instances: 464
     \item GaRoFou\_I: dataset of photographs of an art museum,
     consisting of display cabinets, which contain sculptures,
     rocks and various types of objects.
 
     Number of reference images: 1068
-    Number of test images: 184
+    Number of test images: 184 (all are used for evaluation)
     Number of instances: 311
     % \item GaRoFou_V: dataset of frames from a video taken by visitors
     % of the same museum as above.
@@ -170,55 +173,42 @@ the MAP score as well later on.
 \section{Methodology}
 The following approaches have been tested:
 
-\subsection{Full classification features of a pre-trained CNN}
-We use the features obtained from the last layer of a CNN
-that was pre-trained on ImageNet. The feature dimension is thus
+\subsection{Features of a pre-trained CNN}\label{sec:cnnplain}
+We use the features obtained from a CNN that was pre-trained on ImageNet.
+The feature dimension of the last layer is thus
 fixed at 1000, the number of classes in ImageNet.
+
+We also use the convolutional features obtained from such a CNN.
+Their dimensions are specified in{} the specifics section.
 \subsubsection{Motivation}
 This is to set a baseline for other approaches and to reproduce results
 from a previous paper (TODO cite CORIA paper).
 \subsubsection{Specifics}
-All images are resized to $227 \times 227$, using a nearest neighbor
+All images are resized to $224 \times 224$, using a bilinear
 re-sampling filter. This is to fit the default input dimensions of
 a CNN used in ImageNet.
 
 The following CNNs were tested:
 \begin{enumerate}
-    \item AlexNet
-    \item ResNet-152
-\end{enumerate}
-\subsection{Convolutional features of a pre-trained CNN}
-We use the features obtained from the last convolutional or pooling
-layer of a CNN, pre-trained on ImageNet. The feature dimension depends
-on the CNN and is added below in the specifics section.
-\subsubsection{Motivation}
-Convolutional features should perform better than full classification
-features as we are not interested in capturing the class of objects in
-the images, but only in capturing the various shapes and see if they
-are similar in two images.
-\subsubsection{Specifics}\label{sec:convspec}
-All images are resized to $227 \times 227$, using a nearest neighbor
-re-sampling filter.
-
-The following CNNs were tested:
-\begin{enumerate}
-    \item AlexNet (feature dimension $6 \times 6 \times 256 = 9216$)
-    \item ResNet-152 (feature dimension $8 \times 8 \times 2048 =131072$)
+    \item AlexNet (convolutional feature dimension $6 \times 6 \times 256 = 9216$)
+    \item ResNet-152 (convolutional feature dimension $7 \times 7 \times 2048 =100352$)
 \end{enumerate}
 
-\subsection{Convolutional features of a fine-tuned CNN}
-We use the features obtained from the last convolutional or pooling layer
-of a CNN, pre-trained on ImageNet, then fine-tuned
-as a classification net on the reference dataset.
+\subsection{Features of a fine-tuned CNN}
+We use the features obtained from a CNN, pre-trained on ImageNet,
+then fine-tuned as a classification net on the reference dataset.
 
-The feature dimensions are as described in Section~\ref{sec:convspec}.
+The feature dimensions are much smaller and correspond to the number
+of instances of the dataset, described in Section~\ref{sec:eval}.
+
+Similarly to the approach in Section~\ref{sec:cnnplain},
+we also use the convolutional features obtained from a fine-tuned model,
+having the same dimensions than described there.
 \subsubsection{Motivation}
-We choose convolutional features since they should perform better than
-classification features. However, the high-level convolutions can be
-fine-tuned to our dataset such that the high-level filters can capture
-the shapes of that dataset better.
+The idea is to fine-tune the high-level convolutional filters
+to our dataset such that they can capture the shapes of that dataset better.
 \subsubsection{Specifics}
-All images are resized to $227 \times 227$, using a nearest neighbor
+All images are resized to $224 \times 224$, using a bilinear
 re-sampling filter.
 
 For fine-tuning the CNN on classification, we use the following settings:
@@ -229,9 +219,15 @@ For fine-tuning the CNN on classification, we use the following settings:
     The motivation behind the extensive data augmentation is that
     the training set is very small, so without data augmentation,
     large CNNs like AlexNet would over-fit the dataset.
-    \item Learning rate: TODO
-    \item TODO
+    \item Number of epochs: $50$
+    \item Learning rate: $0.001$ (annealed by a factor of $0.1$ after 30 epochs)
+    \item Momentum: $0.9$
+    \item Weight decay: $0.0005$
 \end{enumerate}
+
+Note that the hyper-parameters were chosen manually without optimization
+since they appeared to work well on the CLICIDE dataset. This means they
+might be far from optimal on both datasets, and especially GaRoFou.
 
 The following CNNs were tested:
 \begin{enumerate}
@@ -284,7 +280,7 @@ only form a small part of the image. In this case, the rest of the image
 is noise, making the network more difficult or impossible to train.
 
 \subsubsection{Specifics}
-All images are resized to $227 \times 227$, using a nearest neighbor
+All images are resized to $224 \times 224$, using a bilinear
 re-sampling filter. The margin in the loss is set to 0.
 
 For fine-tuning the Siamese CNN, we use the following settings:
@@ -341,7 +337,7 @@ we cannot always perfectly project all couples of images of the same
 instance onto the same point in space, when we have noisy data.
 
 \subsubsection{Specifics}
-All images are resized to $227 \times 227$, using a nearest neighbor
+All images are resized to $224 \times 224$, using a bilinear
 re-sampling filter. The margin in the loss is set to 0.
 
 For fine-tuning the Siamese CNN, we use the following settings:
@@ -373,6 +369,31 @@ The following CNNs were tested:
 
 \section{Results}
 Current results for each approach will be added here.
+
+\begin{table}
+\begin{tabular}{|c|c|c||c|c|}
+\hline
+Approach & \multicolumn{4}{|c|}{Dataset}\\
+\hline
+& \multicolumn{2}{|c||}{CLICIDE} & \multicolumn{2}{|c|}{GaRoFou\_I}\\
+\hline
+& AlexNet & ResNet-152 & AlexNet & ResNet-152\\
+\hline
+Full classif. features of pre-trained net
+& 46.06 & 54.55 & 76.63 & 75.54 \\
+\hline
+Conv. features of pre-trained net
+& 44.24 & 46.67 & 85.33 & 84.78 \\
+\hline
+Full classif. features of classif.-fine-tuned net
+& 62.42 & N/A & 84.24 &  \\
+\hline
+Conv. features of classif.-fine-tuned net
+& 53.33 & N/A & 87.5 & N/A \\
+\hline
+\end{tabular}
+\caption{Results in percentage points of mean $Precision@1$ of various approaches on different datasets and underlying networks}
+\end{table}
 
 \section{Current work}
 Currently, we need to figure out why there are discrepancies between
