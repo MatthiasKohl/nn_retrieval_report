@@ -17,14 +17,14 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 
-\title{Status report - Siamese networks for instance retrieval}
+\title{Status report - Deep learning with Siamese networks for instance search or identification}
 \author{Matthias Kohl}
 
 \begin{document}
 \maketitle
 
 This report serves as a status report for the internship on
-Siamese networks for instance retrieval,
+Siamese networks for instance search (image retrieval),
 supervised by Georges Quénot and Jean-Pierre Chevallet,
 in collaboration with Maxime Portaz.
 
@@ -78,9 +78,11 @@ This concept was first introduced by
 Chopra et al~\cite{chopra_learning_2005} to learn a dissimilarity metric
 between two images.
 
-It was then extended to a triplet loss by
-Weinberger et al~\cite{weinberger_distance_2006}, which allows for
-more stable convergence.
+For a learning-to-rank setting, this idea was extended to a triplet loss
+by Weinberger et al~\cite{weinberger_distance_2006}.
+This loss is better suited when learning to rank, rather than instance
+search, but it also allows for a more stable convergence, which is
+beneficial in both cases.
 
 Using this triplet loss has achieved state-of-the-art results in both
 face recognition~\cite{schroff_facenet:_2015} and
@@ -138,10 +140,10 @@ We are using the following datasets in our experiments:
 \subsubsection{Metrics definitions}
 \paragraph{$Precision@k$}
 For a test image and $m$ reference images and a ranking of the
-reference images $Im_1, \dots, Im_m$, we define the number of relevant
+reference images $I_1, \dots, I_m$, we define the number of relevant
 images at $k$ with $k \leq m$:
 $N^{rel}_k$ is the number of images in the sub-ranking
-$Im_1, \dots, Im_k$ from the same instance than the test image.
+$I_1, \dots, I_k$ from the same instance than the test image.
 
 We then define Precision at $k$ as:
 
@@ -220,7 +222,7 @@ For fine-tuning the CNN on classification, we use the following settings:
     the training set is very small, so without data augmentation,
     large CNNs like AlexNet would over-fit the dataset.
     \item Number of epochs: $50$
-    \item Learning rate: $0.001$ (annealed by a factor of $0.1$ after 30 epochs)
+    \item Learning rate: $0.01$ (annealed by a factor of $0.1$ after 30 epochs)
     \item Momentum: $0.9$
     \item Weight decay: $0.0005$
 \end{enumerate}
@@ -356,9 +358,12 @@ The following choices of the triplets of images for training were tested:
     \item Choose all positive pairs and for each image, choose 'semi-hard'
     negatives early on in training, then choose only the 'hardest'
     negatives. This is motivated by Schroff et al~\cite{schroff_facenet:_2015}.
-    \item Choose the easiest positives along with the hardest negatives.
+    \item Choose the easiest $n_p$ positives along with the
+    hardest $n_n$ negatives. Then compute the loss for all $n_p\times n_n$
+    triplets. Choose the $n_t$ triplets with the highest loss.
+    Repeat this procedure until a large enough number of hard triplets
+    are found. Perform this before each epoch during training.
     This is motivated by the strategy of Gordo et al~\cite{gordo_deep_2016}.
-    TODO add more precise strategy (see mail)
 \end{enumerate}
 
 The following CNNs were tested:
@@ -368,7 +373,8 @@ The following CNNs were tested:
 \end{enumerate}
 
 \section{Results}
-Current results for each approach will be added here.
+Table~\ref{tab:results} shows current results for each approach.
+All new results are added there as soon as available.
 
 \begin{table}
 \begin{tabular}{|c|c|c||c|c|}
@@ -386,50 +392,72 @@ Conv. features of pre-trained net
 & 44.24 & 46.67 & 85.33 & 84.78 \\
 \hline
 Full classif. features of classif.-fine-tuned net
-& 62.42 & N/A & 84.24 &  \\
+& 61.21 & 75.76 & 86.96 & 92.93 \\
 \hline
 Conv. features of classif.-fine-tuned net
-& 53.33 & N/A & 87.5 & N/A \\
+& 52.12 & 81.21 & 89.13 & 96.20 \\
 \hline
 \end{tabular}
-\caption{Results in percentage points of mean $Precision@1$ of various approaches on different datasets and underlying networks}
+\caption{Results in percentage points of mean $Precision@1$ of various approaches on different datasets and underlying networks\label{tab:results}}
 \end{table}
 
 \section{Current work}
-Currently, we need to figure out why there are discrepancies between
-our results and CORIA results...
+\begin{itemize}
+    \item Investigate discrepancies between our results and CORIA results.
+    Nothing obvious was found at first sight. However, it seems like
+    the datasets/testing sets are not very stable (because they are very small).
+    This means, for example, that simply choosing a different normalization
+    can have a big impact on results (image-wise normalization vs
+    dataset-wise normalization and in case of dataset-wise, there are
+    different possible ways to do that: pixel-wise \dots)
 
-TODO check image input size for ResNet (should not be 227x227 -> this gives 8x8 filters but should be 7x7)
-
-TODO (add visualizations to see what goes wrong etc)
-TODO:
-- show simple gradient for single filter activation -> class saliency
-extraction
-- optimize response of filter + regularized image by gradient descent
-(keep weights fixed)
-for this, see paper by Simonyan et al 'Deep Inside Convolutional Networks..'
+    Another possibility is the input size of images: we choose the
+    $224\times224$ size from ImageNet, which gives the expected
+    $6\times6$ conv. filter maps for AlexNet and $7\times7$ for ResNet.
+    \item Add visualizations to see whether the filters capture the
+    images as expected: There are several approaches.
+    \begin{enumerate}
+        \item Simply display the feature maps of filters as heat maps:
+        this is implemented.
+        \item Calculate the number of times that filters are activated:
+        Are some filters always 0 ? How many times each filter obtains
+        the maximum activation ?
+        This is implemented.
+        \item Show the gradient for single filter activation:
+        class saliency extraction, not implemented yet
+        \item optimize response of filter +
+        regularized image by gradient descent (keeping weights fixed):
+        for this and previous approach, see paper by
+        Simonyan et al 'Deep Inside Convolutional Networks..':
+        not implemented yet
+    \end{enumerate}
+\end{itemize}
 
 \section{Future work}
 Propose new approach based on the problems found from analyzing current
-systems/approaches.
-Motivation: current approaches seem to give far from optimal results
+systems/approaches, and try to obtain state-of-the-art results on
+more common datasets, such as Oxford5k, Paris6k or Sculptures.
+Motivation: current approaches on these datasets as well as
+the ones presented seem to give far from optimal results / check
+if our approaches generalize well to other datasets.
 
-Possibly create new dataset (based on images of museum art pieces)
-Motivation: CLICIDE dataset is particularly suited for ORB. GaRoFou
-dataset is very small. This makes it difficult, but it might not be
-a good indicator of performance in general (the smaller the dataset,
-the higher the risk of over-fitting).
-A better dataset would be one with more images
-(and proportionally more instances) and a better harmonization of
-query vs reference images: reference images should be clean and from
-all angles of the object, query images should not be clean, blurred,
-only small parts of the image contains object to find etc.
+\begin{itemize}
+    \item Possibly create new dataset
+    (based on images of museum art pieces)
 
-Possibly investigate few-shots training approaches: this tries to
-solve classification with only very few images per class. It does not
-require pre-trained nets.
+    Motivation: CLICIDE dataset is particularly suited for ORB.
+    GaRoFou dataset is very small, so the risk of over-fitting
+    to that particular type of dataset is high.
 
-TODO
+    A better dataset would be one with more images
+    (and proportionally more instances) and a better harmonization of
+    query vs reference images: reference images should be clean and from
+    all angles of the object, query images should not be clean, blurred,
+    only small parts of the image contains object to find \dots
+    \item Possibly investigate few-shots training approaches:
+    the idea is to solve classification with only very few images per class.
+    It does not require pre-trained nets.
+\end{itemize}
 
 \bibliographystyle{ieeetr}
 \bibliography{siamese}
@@ -437,7 +465,15 @@ TODO
 \newpage
 \appendix
 \section{Implementation details and specifics}
-PyTorch
-specific issues: large images/large batch sizes/large nets -> lots of memory
+\subsection{General issues}
+large images/large batch sizes/large nets means we require lots of memory
+this means we implement so-called micro-batches for gradient descent:
+each mini-batch is decomposed into several micro-batches.
+perform a forward pass over the micro-batches while accumulating the loss.
+then, perform a backward pass, which is representative of the mini-batch,
+but we require only as much memory as for one micro-batch
+
+\subsection{PyTorch specific issues}
+TODO
 
 \end{document}
