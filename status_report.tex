@@ -196,7 +196,7 @@ The following CNNs were tested:
     \item ResNet-152 (convolutional feature dimension $7 \times 7 \times 2048 =100352$)
 \end{enumerate}
 
-\subsection{Features of a fine-tuned CNN}
+\subsection{Features of a fine-tuned CNN}\label{sec:finetune}
 We use the features obtained from a CNN, pre-trained on ImageNet,
 then fine-tuned as a classification net on the reference dataset.
 
@@ -209,7 +209,7 @@ having the same dimensions than described there.
 \subsubsection{Motivation}
 The idea is to fine-tune the high-level convolutional filters
 to our dataset such that they can capture the shapes of that dataset better.
-\subsubsection{Specifics}
+\subsubsection{Specifics}\label{sec:finetunespecs}
 All images are resized to $224 \times 224$, using a bilinear
 re-sampling filter.
 
@@ -287,9 +287,14 @@ re-sampling filter. The margin in the loss is set to 0.
 
 For fine-tuning the Siamese CNN, we use the following settings:
 \begin{enumerate}
-    \item Data augmentation: TODO
-    \item Learning rate: TODO
-    \item TODO
+    \item Margin used in loss: $margin:=0$
+    \item Data augmentation: None/same as in fine-tuning
+    (Section~\ref{sec:finetunespecs})
+    \item Batch size: 64/256
+    \item Number of epochs: $50$
+    \item Learning rate: $0.001$
+    \item Momentum: $0.9$
+    \item Annealing: None
 \end{enumerate}
 
 The following choices of the pairs of images for training were tested:
@@ -344,9 +349,14 @@ re-sampling filter. The margin in the loss is set to 0.
 
 For fine-tuning the Siamese CNN, we use the following settings:
 \begin{enumerate}
-    \item Data augmentation: TODO
-    \item Learning rate: TODO
-    \item TODO
+    \item Margin used in loss: $margin^{\star}:=0.2$
+    \item Data augmentation: None/same as fine-tuning
+    (Section~\ref{sec:finetunespecs})
+    \item Batch size: 64/256
+    \item Number of epochs: $50$
+    \item Learning rate: $0.001$
+    \item Momentum: $0.9$
+    \item Annealing: None
 \end{enumerate}
 
 The following choices of the triplets of images for training were tested:
@@ -374,6 +384,18 @@ The following CNNs were tested:
 
 \section{Results}
 Table~\ref{tab:results} shows current results for each approach.
+The following special values can appear in the table:
+\begin{itemize}
+    \item N/A: configuration was not tested
+    \item CH: loss gets smaller, but converges at a high value.
+    usually in this case, testing performance stagnates or goes slightly down.
+    We tried different batch sizes, but none give a better result.
+    This usually indicates that we always converge to a local minimum
+    or the model collapses (setting all embeddings to 0 for example)
+    \item CBT: loss converges towards 0, but testing performance does
+    not improve. this shows the model performs bad somehow
+\end{itemize}
+
 All new results are added there as soon as available.
 
 \begin{table}
@@ -396,6 +418,21 @@ Full classif. features of classif.-fine-tuned net
 \hline
 Conv. features of classif.-fine-tuned net
 & 52.12 & 81.21 & 89.13 & 96.20 \\
+\hline
+Cosine loss (random pairs) with pre-trained net
+& N/A & CH & N/A & N/A \\
+\hline
+Cosine loss (hardest pairs) with pre-trained net
+& N/A & CH & N/A & N/A \\
+\hline
+Triplet loss (all pos, random neg) with pre-trained net
+& N/A & 55.15 & N/A & N/A \\
+\hline
+Triplet loss (all pos, semi-hard neg) with pre-trained net
+& N/A & CH & N/A & N/A \\
+\hline
+Triplet loss (easy pos, hard neg) with pre-trained net
+& N/A & CH & N/A & N/A \\
 \hline
 \end{tabular}
 \caption{Results in percentage points of mean $Precision@1$ of various approaches on different datasets and underlying networks\label{tab:results}}
