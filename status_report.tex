@@ -511,6 +511,11 @@ perform a forward pass over the micro-batches while accumulating the loss.
 then, perform a backward pass, which is representative of the mini-batch,
 but we require only as much memory as for one micro-batch
 
+\subsection{Library issues}
+PIL ignores EXIF 'Orientation' tag, while almost all image viewers don't.
+This means PIL reads camera images where the camera was rotated as rotated
+images. OpenCV seems to handle this case correctly, instead.
+
 \subsection{PyTorch specific issues}
 TODO
 
