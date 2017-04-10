@@ -415,10 +415,10 @@ Conv. features of pre-trained net
 & 72.73 & 75.76 & 85.33 & 84.78 \\
 \hline
 Full classif. features of classif.-fine-tuned net
-& N/A & N/A & 86.96 & 92.93 \\
+& N/A & 77.58 & 86.96 & 92.93 \\
 \hline
 Conv. features of classif.-fine-tuned net
-& N/A & N/A & 89.13 & 96.20 \\
+& N/A & 89.70 & 89.13 & 96.20 \\
 \hline
 Cosine loss (random pairs) with pre-trained net
 & N/A & N/A & N/A & N/A \\
@@ -430,7 +430,7 @@ Triplet loss (all pos, random neg) with pre-trained net
 & N/A & N/A & N/A & N/A \\
 \hline
 Triplet loss (all pos, semi-hard neg) with pre-trained net
-& N/A & $\approx$ 70/75 (data aug) & N/A & N/A \\
+& N/A & 86.06 & N/A & N/A \\
 \hline
 Triplet loss (easy pos, hard neg) with pre-trained net
 & N/A & CBT & N/A & N/A \\
@@ -469,6 +469,24 @@ Triplet loss (easy pos, hard neg) with pre-trained net
         Simonyan et al 'Deep Inside Convolutional Networks..':
         not implemented yet
     \end{enumerate}
+    \item Transform fine-tuned classification net into FCN, then use this
+    to predict region of interest for full sized images:
+
+    feature maps are processed by a convolutionalized FC layer
+    this gives a new feature map
+
+    only consider the locations of the highest values in that feature map
+    according to the others (the considered locations must have values
+    noticeably higher than most others - use percentile or something similar
+    to obtain this)
+
+    for each feature map of the convolutional features,
+    perform a sum aggregation over the regions defined by the locations
+    found previously (this means locations where multiple high values
+    overlapped are included multiple times)
+
+    use this value for each filter to obtain the descriptor, then normalize,
+    perform Shift + FC and normalize
 \end{itemize}
 
 \section{Future work}
