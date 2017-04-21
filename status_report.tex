@@ -529,6 +529,20 @@ perform a forward pass over the micro-batches while accumulating the loss.
 then, perform a backward pass, which is representative of the mini-batch,
 but we require only as much memory as for one micro-batch
 
+
+be careful when training with micro-batches. this is required here because
+of memory issues. however, there can be some issues:
+    - averaging the loss needs to be done correctly if an average loss
+    is wanted. each micro-batch loss needs to be scaled by a factor n/m
+    where n is the size of the micro-batch and m the mini-batch size
+    - The BatchNorm layer does not work as expected with very small
+    micro-batches, since it computes a running mean and variance during
+    training. this cannot work if only 1 or 2 images are given per batch.
+    In PyTorch, this kind of layer needs to be set in eval mode instead
+    if small micro-batches are used. However, this means the parameters
+    (global mean/var approx) need to be calculated up-front, for example
+    during classification where bigger batch sizes can be used
+
 \subsection{Library issues}
 PIL ignores EXIF 'Orientation' tag, while almost all image viewers don't.
 This means PIL reads camera images where the camera was rotated as rotated
