@@ -526,7 +526,14 @@ Triplet loss (semi-hard), semantic sub-regions
     \item Proposed and implemented the following approach:
     \begin{itemize}
         \item Transform fine-tuned classification net into fully
-        convolutional network (FCN)
+        convolutional network (FCN) as suggested by
+        Long et al~\cite{long_fully_2015}. Figure~\ref{fig:fcn} shows
+        how this is achieved. Evaluating the fully convolutional network
+        on an arbitrarily-sized image is the same thing as evaluating it
+        by sliding it over the input with the stride of the net (this is
+        32 for both AlexNet and ResNet, but for AlexNet, it would start
+        slightly outside the frame of the input image) and the ideal
+        input region of the net (223x223 for AlexNet, 224x224 for ResNet)
         \item Only consider locations of the highest activations
         in the classification map. This should correspond to the
         approximate region of interest
@@ -545,6 +552,14 @@ Triplet loss (semi-hard), semantic sub-regions
         efficient.
     \end{itemize}
 \end{itemize}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{fcn_slide.jpg}
+\caption[caption]{Convolutionalization of fully connected layers
+\\\hspace{\textwidth}source:
+\url{https://www.slideshare.net/mitmul/
+a-brief-introduction-to-recent-segmentation-methods}\label{fig:fcn}}
+\end{figure}
 
 
 \bibliographystyle{ieeetr}
