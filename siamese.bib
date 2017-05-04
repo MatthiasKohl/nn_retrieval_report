@@ -7,9 +7,9 @@
 	abstract = {Convolutional Neural Networks (CNNs) achieve state-of-the-art performance in many computer vision tasks. However, this achievement is preceded by extreme manual annotation in order to perform either training from scratch or fine-tuning for the target task. In this work, we propose to fine-tune CNN for image retrieval from a large collection of unordered images in a fully automated manner. We employ state-of-the-art retrieval and Structure-from-Motion (SfM) methods to obtain 3D models, which are used to guide the selection of the training data for CNN fine-tuning. We show that both hard positive and hard negative examples enhance the final performance in particular object retrieval with compact codes.},
 	language = {en},
 	urldate = {2017-03-10},
-	booktitle = {Computer {Vision} – {ECCV} 2016},
+	booktitle = {Computer {Vision} {\textendash} {ECCV} 2016},
 	publisher = {Springer, Cham},
-	author = {Radenović, Filip and Tolias, Giorgos and Chum, Ondřej},
+	author = {Radenovi{\'c}, Filip and Tolias, Giorgos and Chum, Ond{\v r}ej},
 	month = oct,
 	year = {2016},
 	pages = {3--20},
@@ -24,9 +24,9 @@
 	abstract = {We propose a novel approach for instance-level image retrieval. It produces a global and compact fixed-length representation for each image by aggregating many region-wise descriptors. In contrast to previous works employing pre-trained deep networks as a black box to produce features, our method leverages a deep architecture trained for the specific task of image retrieval. Our contribution is twofold: (i) we leverage a ranking framework to learn convolution and projection weights that are used to build the region features; and (ii) we employ a region proposal network to learn which regions should be pooled to form the final global descriptor. We show that using clean training data is key to the success of our approach. To that aim, we use a large scale but noisy landmark dataset and develop an automatic cleaning approach. The proposed architecture produces a global image representation in a single forward pass. Our approach significantly outperforms previous approaches based on global descriptors on standard datasets. It even surpasses most prior works based on costly local descriptor indexing and spatial verification. Additional material is available at www.xrce.xerox.com/Deep-Image-Retrieval.},
 	language = {en},
 	urldate = {2017-03-10},
-	booktitle = {Computer {Vision} – {ECCV} 2016},
+	booktitle = {Computer {Vision} {\textendash} {ECCV} 2016},
 	publisher = {Springer, Cham},
-	author = {Gordo, Albert and Almazán, Jon and Revaud, Jerome and Larlus, Diane},
+	author = {Gordo, Albert and Almaz{\'a}n, Jon and Revaud, Jerome and Larlus, Diane},
 	month = oct,
 	year = {2016},
 	pages = {241--257},
@@ -88,7 +88,7 @@
 	abstract = {Recently, image representation built upon Convolutional Neural Network (CNN) has been shown to provide effective descriptors for image search, outperforming pre-CNN features as short-vector representations. Yet such models are not compatible with geometry-aware re-ranking methods and still outperformed, on some particular object retrieval benchmarks, by traditional image search systems relying on precise descriptor matching, geometric re-ranking, or query expansion. This work revisits both retrieval stages, namely initial search and re-ranking, by employing the same primitive information derived from the CNN. We build compact feature vectors that encode several image regions without the need to feed multiple inputs to the network. Furthermore, we extend integral images to handle max-pooling on convolutional layer activations, allowing us to efficiently localize matching objects. The resulting bounding box is finally used for image re-ranking. As a result, this paper significantly improves existing CNN-based recognition pipeline: We report for the first time results competing with traditional methods on the challenging Oxford5k and Paris6k datasets.},
 	urldate = {2017-03-10},
 	journal = {arXiv:1511.05879 [cs]},
-	author = {Tolias, Giorgos and Sicre, Ronan and Jégou, Hervé},
+	author = {Tolias, Giorgos and Sicre, Ronan and J{\'e}gou, Herv{\'e}},
 	month = nov,
 	year = {2015},
 	note = {arXiv: 1511.05879},
@@ -191,7 +191,7 @@
 	number = {1},
 	urldate = {2017-03-10},
 	journal = {International Journal of Computer Vision},
-	author = {Mikulik, Andrej and Perdoch, Michal and Chum, Ondřej and Matas, Jiří},
+	author = {Mikulik, Andrej and Perdoch, Michal and Chum, Ond{\v r}ej and Matas, Ji{\v r}{\'i}},
 	month = may,
 	year = {2013},
 	pages = {163--175},
@@ -208,4 +208,67 @@
 	year = {2007},
 	pages = {1--8},
 	file = {[PDF] ox.ac.uk:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/VN8NX7SX/Philbin et al. - 2007 - Object retrieval with large vocabularies and fast .pdf:application/pdf;Snapshot:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/WNAN9FGM/4270197.html:text/html}
+}
+
+@inproceedings{portaz_construction_nodate,
+	title = {Construction et {\'e}valuation d{\textquoteright}un corpus pour la recherche d{\textquoteright}instances d{\textquoteright}images mus{\'e}ales.},
+	author = {Portaz, Maxime and Poignant, Johann and Budnik, Mateusz and Mulhem, Philippe and Chevallet, Jean-Pierre and Goeuriot, Lorraine},
+	file = {~.pdf:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/XZ33ZWJ8/~.pdf:application/pdf}
+}
+
+@article{gordo_end--end_2016,
+	title = {End-to-end learning of deep visual representations for image retrieval},
+	url = {https://arxiv.org/abs/1610.07940},
+	urldate = {2017-03-28},
+	journal = {arXiv preprint arXiv:1610.07940},
+	author = {Gordo, Albert and Almazan, Jon and Revaud, Jerome and Larlus, Diane},
+	year = {2016},
+	file = {[PDF] arxiv.org:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/MVHWDJNW/Gordo et al. - 2016 - End-to-end learning of deep visual representations.pdf:application/pdf;Snapshot:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/3XHPFBKD/1610.html:text/html}
+}
+
+@inproceedings{babenko_neural_2014,
+	title = {Neural codes for image retrieval},
+	url = {http://link.springer.com/chapter/10.1007/978-3-319-10590-1_38},
+	urldate = {2017-03-28},
+	booktitle = {European conference on computer vision},
+	publisher = {Springer},
+	author = {Babenko, Artem and Slesarev, Anton and Chigorin, Alexandr and Lempitsky, Victor},
+	year = {2014},
+	pages = {584--599},
+	file = {[PDF] arxiv.org:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/46SXQWC4/Babenko et al. - 2014 - Neural codes for image retrieval.pdf:application/pdf;Snapshot:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/FVNXNU8E/978-3-319-10590-1_38.html:text/html}
+}
+
+@article{veit_conditional_2016,
+	title = {Conditional {Similarity} {Networks}},
+	url = {http://arxiv.org/abs/1603.07810},
+	abstract = {What makes images similar? To measure the similarity between images, they are typically embedded in a feature-vector space, in which their distance preserve the relative dissimilarity. However, when learning such similarity embeddings the simplifying assumption is commonly made that images are only compared to one unique measure of similarity. A main reason for this is that contradicting notions of similarities cannot be captured in a single space. To address this shortcoming, we propose Conditional Similarity Networks (CSNs) that learn embeddings differentiated into semantically distinct subspaces that capture the different notions of similarities. CSNs jointly learn a disentangled embedding where features for different similarities are encoded in separate dimensions as well as masks that select and reweight relevant dimensions to induce a subspace that encodes a specific similarity notion. We show that our approach learns interpretable image representations with visually relevant semantic subspaces. Further, when evaluating on triplet questions from multiple similarity notions our model even outperforms the accuracy obtained by training individual specialized networks for each notion separately.},
+	urldate = {2017-05-04},
+	journal = {arXiv:1603.07810 [cs]},
+	author = {Veit, Andreas and Belongie, Serge and Karaletsos, Theofanis},
+	month = mar,
+	year = {2016},
+	note = {arXiv: 1603.07810},
+	keywords = {Computer Science - Artificial Intelligence, Computer Science - Computer Vision and Pattern Recognition, Computer Science - Learning},
+	file = {arXiv\:1603.07810 PDF:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/G3FJJ4SW/Veit et al. - 2016 - Conditional Similarity Networks.pdf:application/pdf;arXiv.org Snapshot:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/G3U9T8PE/1603.html:text/html}
+}
+
+@inproceedings{long_fully_2015,
+	title = {Fully convolutional networks for semantic segmentation},
+	url = {http://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Long_Fully_Convolutional_Networks_2015_CVPR_paper.html},
+	urldate = {2017-05-04},
+	booktitle = {Proceedings of the {IEEE} {Conference} on {Computer} {Vision} and {Pattern} {Recognition}},
+	author = {Long, Jonathan and Shelhamer, Evan and Darrell, Trevor},
+	year = {2015},
+	pages = {3431--3440},
+	file = {[PDF] cv-foundation.org:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/MBNSW6KZ/Long et al. - 2015 - Fully convolutional networks for semantic segmenta.pdf:application/pdf;Snapshot:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/436DPSHQ/Long_Fully_Convolutional_Networks_2015_CVPR_paper.html:text/html}
+}
+
+@article{kaiser_learning_2017,
+	title = {Learning to remember rare events},
+	url = {https://arxiv.org/abs/1703.03129},
+	urldate = {2017-05-04},
+	journal = {arXiv preprint arXiv:1703.03129},
+	author = {Kaiser, {\L }ukasz and Nachum, Ofir and Roy, Aurko and Bengio, Samy},
+	year = {2017},
+	file = {[PDF] arxiv.org:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/HKHCDMTM/Kaiser et al. - 2017 - Learning to remember rare events.pdf:application/pdf;Snapshot:/home/kohlm/.mozilla/firefox/n3dzy4ns.default/zotero/storage/NTC297GU/1703.html:text/html}
 }

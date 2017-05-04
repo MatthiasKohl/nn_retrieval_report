@@ -420,6 +420,9 @@ Full classif. features of classif.-fine-tuned net
 Conv. features of classif.-fine-tuned net
 & N/A & 89.70 & 89.13 & 96.20 \\
 \hline
+Classif fine-tuned semantic sub-regions
+& N/A & 94.55 & N/A & N/A \\
+\hline
 Cosine loss (random pairs) with pre-trained net
 & N/A & N/A & N/A & N/A \\
 \hline
@@ -427,7 +430,7 @@ Cosine loss (hardest pairs) with pre-trained net
 & N/A & N/A & N/A & N/A \\
 \hline
 Triplet loss (all pos, random neg) with pre-trained net
-& N/A & N/A & N/A & N/A \\
+& N/A & CBT & N/A & N/A \\
 \hline
 Triplet loss (all pos, semi-hard neg) with pre-trained net
 & N/A & 86.06 & N/A & N/A \\
@@ -435,32 +438,32 @@ Triplet loss (all pos, semi-hard neg) with pre-trained net
 Triplet loss (easy pos, hard neg) with pre-trained net
 & N/A & CBT & N/A & N/A \\
 \hline
+Triplet loss (semi-hard), semantic sub-regions
+& N/A & 92.73 & N/A & N/A \\
+\hline
 \end{tabular}
 \caption{Results in percentage points of mean $Precision@1$ of various approaches on different datasets and underlying networks\label{tab:results}}
 \end{table}
 
 \section{Current work}
 \begin{itemize}
-    \item Investigate discrepancies between our results and CORIA results.
-    Nothing obvious was found at first sight. However, it seems like
-    the datasets/testing sets are not very stable (because they are very small).
-    This means, for example, that simply choosing a different normalization
-    can have a big impact on results (image-wise normalization vs
-    dataset-wise normalization and in case of dataset-wise, there are
-    different possible ways to do that: pixel-wise \dots)
+    \item Obtain results for various approaches and datasets. See how well
+    the different approaches generalize.
+\end{itemize}
 
-    Another possibility is the input size of images: we choose the
-    $224\times224$ size from ImageNet, which gives the expected
-    $6\times6$ conv. filter maps for AlexNet and $7\times7$ for ResNet.
-    \item Add visualizations to see whether the filters capture the
-    images as expected: There are several approaches.
+\section{Future work}
+\begin{itemize}
+    \item Propose new approach: This could be based on ideas from the
+    following papers:
     \begin{enumerate}
-        \item Simply display the feature maps of filters as heat maps:
-        this is implemented.
-        \item Calculate the number of times that filters are activated:
-        Are some filters always 0 ? How many times each filter obtains
-        the maximum activation ?
-        This is implemented.
+        \item Conditional similarity networks,
+        Veit et al~\cite{veit_conditional_2016}
+        \item Learning to remember rare events (few-shot classification),
+        Kaiser et al~\cite{kaiser_learning_2017}
+    \end{enumerate}
+    \item Possibly add more visualizations to see whether the filters
+    capture the images as expected: There are several approaches.
+    \begin{enumerate}
         \item Show the gradient for single filter activation:
         class saliency extraction, not implemented yet
         \item optimize response of filter +
@@ -469,35 +472,7 @@ Triplet loss (easy pos, hard neg) with pre-trained net
         Simonyan et al 'Deep Inside Convolutional Networks..':
         not implemented yet
     \end{enumerate}
-    \item Transform fine-tuned classification net into FCN, then use this
-    to predict region of interest for full sized images:
 
-    feature maps are processed by a convolutionalized FC layer
-    this gives a new feature map
-
-    only consider the locations of the highest values in that feature map
-    according to the others (the considered locations must have values
-    noticeably higher than most others - use percentile or something similar
-    to obtain this)
-
-    for each feature map of the convolutional features,
-    perform a sum aggregation over the regions defined by the locations
-    found previously (this means locations where multiple high values
-    overlapped are included multiple times)
-
-    use this value for each filter to obtain the descriptor, then normalize,
-    perform Shift + FC and normalize
-\end{itemize}
-
-\section{Future work}
-Propose new approach based on the problems found from analyzing current
-systems/approaches, and try to obtain state-of-the-art results on
-more common datasets, such as Oxford5k, Paris6k or Sculptures.
-Motivation: current approaches on these datasets as well as
-the ones presented seem to give far from optimal results / check
-if our approaches generalize well to other datasets.
-
-\begin{itemize}
     \item Possibly create new dataset
     (based on images of museum art pieces)
 
@@ -510,10 +485,67 @@ if our approaches generalize well to other datasets.
     query vs reference images: reference images should be clean and from
     all angles of the object, query images should not be clean, blurred,
     only small parts of the image contains object to find \dots
-    \item Possibly investigate few-shots training approaches:
-    the idea is to solve classification with only very few images per class.
-    It does not require pre-trained nets.
 \end{itemize}
+
+\section{Past work}
+\begin{itemize}
+    \item Tested Gordo's system directly on our dataset
+    \item Investigated discrepancies between our results and CORIA results.
+    In part, this seems to be due to how the dataset is read (correct
+    orientation or not), how the normalization is performed and how the
+    results are calculated precisely (this is not available atm)
+
+    Indeed, because the datasets are small, simply choosing a different
+    normalization can have a big impact on results
+    (image-wise normalization vs
+    dataset-wise normalization and in case of dataset-wise, there are
+    different possible ways to do that: pixel-wise \dots)
+
+    \item Created simple visualizations to see which results are failing,
+    feature maps of filters, plots for loss evolution, heat map and
+    classification map for fully convolutional network
+
+    \item Identified issue in CLICIDE dataset: it seems like the images
+    that are not being retrieved have a different scale than all reference
+    images
+
+    \item Identified discrepancies between our problem and Oxford5k/Paris6k:
+    Oxford and Paris datasets contain many images unrelated to the actual
+    objects that are being queried. They are more general image retrieval
+    datasets, where we want to find similar images out of (many) irrelevant
+    images. Our datasets (CLICIDE and GaRoFou) are identification datasets,
+    where we want to identify the correct object out of many possible ones.
+
+    Hence, the proposed approach cannot work properly on Oxford/Paris, unless
+    we assume that we already know the images that actually represent the
+    same object: this is what Gordo achieves in cleaning his large dataset,
+    plus the large dataset is very similar to Oxford/Paris. This is
+    impractical though as for a different dataset, this means having a
+    large, clean dataset with similar images available
+
+    \item Proposed and implemented the following approach:
+    \begin{itemize}
+        \item Transform fine-tuned classification net into fully
+        convolutional network (FCN)
+        \item Only consider locations of the highest activations
+        in the classification map. This should correspond to the
+        approximate region of interest
+        \item for each region, perform the same transformation than
+        in Gordo's paper (Shift + FC layer, normalize),
+        then sum-accumulate over the regions and normalize again
+    \end{itemize}
+    \item Proposed and implemented another approach based on classification:
+    \begin{itemize}
+        \item Transform fine-tuned classification net into fully
+        convolutional network (FCN)
+        \item Simply enforce classification for all sub-regions of an image.
+        Do this with a scaled version of the image, too. The classifier
+        should be particularly robust to scale changes. This may require
+        fine-tuning far more layers than what we're currently doing to be
+        efficient.
+    \end{itemize}
+\end{itemize}
+
 
 \bibliographystyle{ieeetr}
 \bibliography{siamese}
