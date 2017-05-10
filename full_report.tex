@@ -1,0 +1,220 @@
+\documentclass[fleqn]{article}
+
+%% Language and font encodings
+% \renewcommand{\familydefault}{\sfdefault} % use sans serif per default
+% \usepackage{helvet} % use helvetica per default
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+%% Sets page size and margins
+% \usepackage[a4paper,top=1.5cm,bottom=1.5cm,left=2cm,right=2cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath,amssymb} % for advanced math formulas
+\setlength{\mathindent}{0pt}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\title{Deep learning with Siamese networks for instance search or identification}
+\author{Matthias Kohl}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+TODO
+\end{abstract}
+
+\section{Introduction}
+\subsection{Motivation}
+The research presented here is motivated by the GUIMUTEIC project,
+a collaborative project between industry and LIG. The
+aim is to develop a smart audio-guide for touristic or cultural sites.
+TODO cite project/LIG/etc
+
+In practice, the final product should offer an augmented reality
+interface to the user, with information about the object or objects
+the user is looking at.
+
+One part of the development consists in finding ways of identifying
+objects the user is looking at. There are multiple possibilities,
+for example based on the geo-localization of the user and other sensors.
+In our research, we focus on the recognition of objects based
+only on visual clues.
+
+\subsection{Research problem}
+More specifically, we are interested in the following problem:
+We are given a collection with reference images for each object,
+or instance, to be recognized. The task is to develop a system that,
+given an image of one of the instances, can decide which instance
+the image represents. We assume that, on average, less than ten images
+are available for each instance.
+We will refer to this problem as instance retrieval in the following.
+
+There are a few problems similar to instance retrieval. For one, there is
+the image classification problem: we are given a collection of images
+where each image is assigned a class, like dog or fridge.
+The task is to develop a system that, given an image, decides which
+class the image represents.
+This problem is of course similar if we simply consider each instance
+to be a separate class. However, in classification, we usually
+assume to have many images per class: hundreds or even thousands.
+This means our problem is closer to few-shots classification, where
+only few images are available for each class.
+
+Another similar problem is image retrieval. In image retrieval,
+we are given a collection of reference images and a query image.
+We aim to rank the reference images by similarity to the query image.
+Usually, in image retrieval, reference images are not labeled or loosely
+labeled and many images are irrelevant to the query image. The challenge
+is to rank the most similar images on top.
+Instance retrieval is related to image retrieval in that we aim to
+develop a notion of similarity between images. However, in instance
+retrieval, we do not care about the rank of the returned images, since
+we only consider the highest ranked image, which should represent the
+instance to retrieve.
+
+TODO possibly elaborate here
+
+\subsection{Challenges and contributions}
+The challenge of
+
+\begin{enumerate}
+    \item We analyze existing approaches to image retrieval, classification
+    and determine their shortcomings in our problem setting.
+    \item Based on these shortcomings, we propose a novel approach
+    to improve results in our problem setting.
+    \item We evaluate the novel approach and compare with other approaches.
+\end{enumerate}
+
+\section{State of the art}
+Previously, most systems were based on a bag-of-words approach
+in order to match images~\cite{philbin_object_2007}.
+Combined with better techniques of matching the bag-of-words descriptors,
+this approach was previously the state-of-the-art~\cite{mikulik_learning_2013}.
+
+Recently, the state-of-the-art has drastically improved due to the
+addition of learned features, based on convolutional neural networks
+(CNNs).
+This new approach greatly improved
+mean average precision scores~\cite{gordo_deep_2016} of the system
+on the same datasets.
+
+The general trend is to move from an approach based on a combination of
+engineered features (bag-of-words combined with
+support vector machines or SVMs) to a more end-to-end learning of
+the matching of two images.
+
+For this, the Siamese architecture is used, where the convolutional
+features of two or more CNNs with shared weights are combined and a
+multi-way loss is optimized, which discriminates between the features
+of two or more images.
+This concept was first introduced by
+Chopra et al~\cite{chopra_learning_2005} to learn a dissimilarity metric
+between two images.
+
+For a learning-to-rank setting, this idea was extended to a triplet loss
+by Weinberger et al~\cite{weinberger_distance_2006}.
+This loss is better suited when learning to rank, rather than instance
+search, but it also allows for a more stable convergence, which is
+beneficial in both cases.
+
+Using this triplet loss has achieved state-of-the-art results in both
+face recognition~\cite{schroff_facenet:_2015} and
+image retrieval~\cite{gordo_deep_2016}. This is mostly due to the usage
+of far deeper CNNs, moving from architectures such as
+AlexNet~\cite{krizhevsky_imagenet_2012} to VGG~\cite{simonyan_very_2014}
+and finally Inception~\cite{szegedy_inception-v4_2016} and
+ResNet~\cite{he_deep_2015}.
+
+The higher depth of networks like ResNet and Inception as compared to
+AlexNet allows for higher regularization and thus less over-fitting
+to a specific dataset for these architectures. Batch normalization
+increases this effect even more. This is a desirable trait for image
+retrieval, as the variability within each instance is too small to
+learn classification directly. So the better we can generalize
+features learned from a bigger dataset to the reference dataset,
+the better performance we can expect.
+
+\section{Evaluation}\label{sec:eval}
+We are using the following datasets in our experiments:
+\begin{enumerate}
+    \item CLICIDE: dataset of photographs taken in an art museum,
+    consisting exclusively of paintings. The dataset is characteristic
+    because the different images for each instance consist of one
+    global view of the instance and multiple sub-parts.
+
+    Number of reference images: 3245 (the full dataset contains
+    3452 images with 207 images of walls and no meaningful instance)
+    Number of test images: 165 (the full dataset contains 177
+    test images, out of which 165 share their instance with
+    at least one image of the reference set)
+    Number of instances: 464
+    \item GaRoFou\_I: dataset of photographs of an art museum,
+    consisting of display cabinets, which contain sculptures,
+    rocks and various types of objects.
+
+    Number of reference images: 1068
+    Number of test images: 184 (all are used for evaluation)
+    Number of instances: 311
+    % \item GaRoFou_V: dataset of frames from a video taken by visitors
+    % of the same museum as above.
+
+    % Number of reference images: 2779
+    % Number of test images: 2132
+    % Number of instances: 215
+    % \item Oxford5k: dataset of photographs of buildings taken in
+    % the city of Oxford, UK.
+
+    % Number of reference images: 5000 TODO
+    % Number of test images: 55 TODO
+    % Number of instances: 17 TODO
+\end{enumerate}
+
+\subsection{Evaluation metrics}
+\subsubsection{Metrics definitions}
+\paragraph{$Precision@k$}
+For a test image and $m$ reference images and a ranking of the
+reference images $I_1, \dots, I_m$, we define the number of relevant
+images at $k$ with $k \leq m$:
+$N^{rel}_k$ is the number of images in the sub-ranking
+$I_1, \dots, I_k$ from the same instance than the test image.
+
+We then define Precision at $k$ as:
+
+\begin{equation}
+Precision@k = \frac{N^{rel}_k}{k}
+\end{equation}
+
+\paragraph{MAP}
+As above, for a test image, $m$ reference images and a ranking
+of the reference images, we define the average precision:
+
+\begin{equation}
+AP = \frac{1}{N^{rel}_m} \sum_{k=1}^m Precision@k
+\end{equation}
+
+The MAP score is defined as the mean of the AP score over all test images.
+
+\subsubsection{Used metrics}
+As of now, we use the mean $Precision@1$ to evaluate the system.
+It is the mean of the $Precision@1$ for all test images.
+This is what we are most interested in: in the context of a
+search system for retrieving art in a museum, we are only
+interested in one result, as the user should not make a choice
+out of several results.
+
+To be comparable with other papers in the field, we will implement
+the MAP score as well.
+
+\bibliographystyle{ieeetr}
+\bibliography{siamese}
+
+% \newpage
+% \appendix
+% \section{Implementation details and specifics}
+% \subsection{General issues}
+
+\end{document}

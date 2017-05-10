@@ -387,6 +387,7 @@ Table~\ref{tab:results} shows current results for each approach.
 The following special values can appear in the table:
 \begin{itemize}
     \item N/A: configuration was not tested
+    \item DNC: unable to make it converge
     \item CH: loss gets smaller, but converges at a high value.
     usually in this case, testing performance stagnates or goes slightly down.
     We tried different batch sizes, but none give a better result.
@@ -405,7 +406,7 @@ Approach & \multicolumn{4}{|c|}{Dataset}\\
 \hline
 & \multicolumn{2}{|c||}{CLICIDE} & \multicolumn{2}{|c|}{GaRoFou\_I}\\
 \hline
-Gordo's net & \multicolumn{2}{|c||}{90.30} & \multicolumn{2}{|c|}{N/A}\\
+Gordo's net & \multicolumn{2}{|c||}{90.30} & \multicolumn{2}{|c|}{95.65}\\
 \hline
 & AlexNet & ResNet-152 & AlexNet & ResNet-152\\
 \hline
@@ -423,16 +424,16 @@ Conv. features of classif.-fine-tuned net
 & N/A & 89.70 & 89.13 & 96.20 \\
 \hline
 Classif fine-tuned semantic sub-regions
-& N/A & 94.55 & N/A & N/A \\
+& N/A & 94.55 & N/A & 91.85 \\
 \hline
 Cosine loss (random pairs) with pre-trained net
-& N/A & N/A & N/A & N/A \\
+& N/A & N/A & N/A & DNC \\
 \hline
 Cosine loss (hardest pairs) with pre-trained net
-& N/A & N/A & N/A & N/A \\
+& N/A & N/A & N/A & DNC \\
 \hline
 Triplet loss (all pos, random neg) with pre-trained net
-& N/A & CBT & N/A & N/A \\
+& N/A & CBT & N/A & CBT \\
 \hline
 Triplet loss (all pos, semi-hard neg) with pre-trained net
 & N/A & 86.06 & N/A & N/A \\
