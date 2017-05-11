@@ -76,11 +76,35 @@ retrieval, we do not care about the rank of the returned images, since
 we only consider the highest ranked image, which should represent the
 instance to retrieve.
 
-TODO possibly elaborate here
+% TODO possibly elaborate here
 
-\subsection{Challenges and contributions}
-The challenge of
+\subsection{Challenges}
+For all of the problems described above, deep learning approaches
+based on convolutional neural networks (CNNs) have recently obtained
+the state-of-the-art results. One of the drawbacks of CNNs is that
+they require large amounts of data to be trained.
 
+In our research problem in particular, we do not
+have large enough amounts of data available to fully train a CNN.
+However, we aim to develop a system that can learn a descriptor
+specific to the reference images,
+as the system only needs to recognize and differentiate between
+instances of that particular dataset. So the system should be tuned to
+the dataset. Since we usually have less than ten images per instance,
+this is an important challenge to overcome.
+
+Another challenge comes from the nature of the datasets: we were not
+able to find similar datasets in the literature, with only a few,
+clean images, for each instance and many instances.
+Common datasets in image retrieval like Oxford5k [TODO], Paris6k [TODO]
+or Holidays [TODO] contain many images per instance, but a lot of noise,
+as they are used to evaluate whether a system can robustly retrieve the
+correct images out of a set of random images.
+This means that the approaches used for image retrieval datasets may
+not work as well for instance retrieval.
+
+\subsection{Contributions}
+We made the following three major contributions:
 \begin{enumerate}
     \item We analyze existing approaches to image retrieval, classification
     and determine their shortcomings in our problem setting.
