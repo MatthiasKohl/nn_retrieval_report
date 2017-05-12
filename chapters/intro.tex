@@ -1,0 +1,87 @@
+% !TeX root = ../full_report.tex
+
+\chapter{Introduction}
+\section{Motivation}
+The research presented here is motivated by the GUIMUTEIC project,
+a collaborative project between industry and LIG. The
+aim is to develop a smart audio-guide for touristic or cultural sites.
+TODO cite project/LIG/etc
+
+In practice, the final product should offer an augmented reality
+interface to the user, with information about the object or objects
+the user is looking at.
+
+One part of the development consists in finding ways of identifying
+objects the user is looking at. There are multiple possibilities,
+for example based on the geo-localization of the user and other sensors.
+In our research, we focus on the recognition of objects based
+only on visual clues.
+
+\section{Research problem}
+More specifically, we are interested in the following problem:
+We are given a collection with reference images for each object,
+or instance, to be recognized. The task is to develop a system that,
+given an image of one of the instances, can decide which instance
+the image represents. We assume that, on average, less than ten images
+are available for each instance.
+We will refer to this problem as instance retrieval in the following.
+
+There are a few problems similar to instance retrieval. For one, there is
+the image classification problem: we are given a collection of images
+where each image is assigned a class, like dog or fridge.
+The task is to develop a system that, given an image, decides which
+class the image represents.
+This problem is of course similar if we simply consider each instance
+to be a separate class. However, in classification, we usually
+assume to have many images per class: hundreds or even thousands.
+This means our problem is closer to few-shots classification, where
+only few images are available for each class.
+
+Another similar problem is image retrieval. In image retrieval,
+we are given a collection of reference images and a query image.
+We aim to rank the reference images by similarity to the query image.
+Usually, in image retrieval, reference images are not labeled or loosely
+labeled and many images are irrelevant to the query image. The challenge
+is to rank the most similar images on top.
+Instance retrieval is related to image retrieval in that we aim to
+develop a notion of similarity between images. However, in instance
+retrieval, we do not care about the rank of the returned images, since
+we only consider the highest ranked image, which should represent the
+instance to retrieve.
+
+% TODO possibly elaborate here
+
+\section{Challenges}
+For all of the problems described above, deep learning approaches
+based on convolutional neural networks (CNNs) have recently obtained
+the state-of-the-art results. One of the drawbacks of CNNs is that
+they require large amounts of data to be trained.
+
+In our research problem in particular, we do not
+have large enough amounts of data available to fully train a CNN.
+However, we aim to develop a system that can learn a descriptor
+specific to the reference images,
+as the system only needs to recognize and differentiate between
+instances of that particular dataset. So the system should be tuned to
+the dataset. Since we usually have less than ten images per instance,
+this is an important challenge to overcome.
+
+Another challenge comes from the nature of the datasets: we were not
+able to find similar datasets in the literature, with only a few,
+clean images, for each instance and many instances.
+Common datasets in image retrieval like Oxford5k [TODO], Paris6k [TODO]
+or Holidays [TODO] contain many images per instance, but a lot of noise,
+as they are used to evaluate whether a system can robustly retrieve the
+correct images out of a set of random images.
+This means that the approaches used for image retrieval datasets may
+not work as well for instance retrieval.
+
+\section{Contributions}
+We made the following three major contributions:
+\begin{enumerate}
+    \item We analyze existing approaches to image retrieval, classification
+    and determine their shortcomings in our problem setting.
+    \item Based on these shortcomings, we propose a novel approach
+    to improve results in our problem setting.
+    \item We evaluate the novel approach and compare with other approaches.
+\end{enumerate}
