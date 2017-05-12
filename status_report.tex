@@ -427,19 +427,19 @@ Classif fine-tuned semantic sub-regions
 & N/A & 94.55 & N/A & 91.85 \\
 \hline
 Cosine loss (random pairs) with pre-trained net
-& N/A & N/A & N/A & DNC \\
+& N/A & N/A & DNC & DNC \\
 \hline
 Cosine loss (hardest pairs) with pre-trained net
-& N/A & N/A & N/A & DNC \\
+& N/A & N/A & DNC & DNC \\
 \hline
 Triplet loss (all pos, random neg) with pre-trained net
-& N/A & CBT & N/A & 95.11 \\
+& N/A & CBT & 89.67 & 95.11 \\
 \hline
 Triplet loss (all pos, semi-hard neg) with pre-trained net
-& N/A & 86.06 & N/A & N/A \\
+& N/A & 86.06 & 88.59 & N/A \\
 \hline
 Triplet loss (easy pos, hard neg) with pre-trained net
-& N/A & CBT & N/A & N/A \\
+& N/A & CBT & 89.67 & 95.65 \\
 \hline
 Triplet loss (semi-hard), semantic sub-regions
 & N/A & 92.73 & N/A & N/A \\
@@ -557,7 +557,7 @@ Triplet loss (semi-hard), semantic sub-regions
 \end{itemize}
 
 \begin{figure}
-\includegraphics[width=\textwidth]{fcn_slide.jpg}
+\includegraphics[width=\textwidth]{./img/fcn_slide.jpg}
 \caption[caption]{Convolutionalization of fully connected layers
 \\\hspace{\textwidth}source:
 \url{https://www.slideshare.net/mitmul/
