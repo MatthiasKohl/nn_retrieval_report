@@ -408,6 +408,8 @@ Approach & \multicolumn{4}{|c|}{Dataset}\\
 \hline
 Gordo's net & \multicolumn{2}{|c||}{90.30} & \multicolumn{2}{|c|}{95.65}\\
 \hline
+Gordo's net (multi-res) & \multicolumn{2}{|c||}{92.73} & \multicolumn{2}{|c|}{95.65}\\
+\hline
 & AlexNet & ResNet-152 & AlexNet & ResNet-152\\
 \hline
 % TODO: verify results for GaRoFou now
@@ -424,25 +426,28 @@ Conv. features of classif.-fine-tuned net
 & 77.58 & 89.70 & 89.13 & 96.20 \\
 \hline
 Classif fine-tuned semantic sub-regions
-& N/A & 94.55 & N/A & 91.85 \\
+& 83.64 & 94.55 & 81.52 & 92.39 \\
 \hline
 Cosine loss (random pairs) with pre-trained net
-& DNC & N/A & DNC & DNC \\
+& DNC & DNC & DNC & DNC \\
 \hline
 Cosine loss (hardest pairs) with pre-trained net
-& DNC & N/A & DNC & DNC \\
+& DNC & DNC & DNC & DNC \\
 \hline
 Triplet loss (all pos, random neg) with pre-trained net
-& N/A & CBT & 89.67 & 95.11 \\
+& CBT & CBT & 89.67 & 95.11 \\
+\hline
+Triplet loss (all pos, hard neg) with pre-trained net
+& 73.94 & CBT & 89.67 & 95.65 \\
 \hline
 Triplet loss (all pos, semi-hard neg) with pre-trained net
-& N/A & 86.06 & 88.59 & N/A \\
+& 75.76 & 86.06 & 88.59 & 94.57 \\
 \hline
 Triplet loss (easy pos, hard neg) with pre-trained net
-& N/A & CBT & 89.67 & 95.65 \\
+& CBT & CBT & 88.04 & DNC \\
 \hline
 Triplet loss (semi-hard), semantic sub-regions
-& N/A & 92.73 & N/A & N/A \\
+& N/A & N/A & 86.96 & N/A \\
 \hline
 \end{tabular}
 \caption{Results in percentage points of mean $Precision@1$ of various approaches on different datasets and underlying networks\label{tab:results}}
