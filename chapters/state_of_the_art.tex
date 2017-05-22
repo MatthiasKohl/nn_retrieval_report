@@ -170,3 +170,114 @@ The triplet loss was first introduced by
 Weinberger et al~\cite{weinberger_distance_2006} as a way of learning
 the best suited distance metric in a k-nearest neighbor classification
 problem.
+This is the reason why the triplet loss was chosen for image retrieval:
+the goal is to learn a metric which allows to discriminate couples of
+images containing the same instance from couples of images containing
+different instances, using the descriptors obtained from the Siamese
+CNN.
+
+Finally, Gordo et al made further contributions, detailed in their
+follow-up paper~\cite{gordo_end--end_2016}.
+\subsection{Dataset}
+For one, an important step is to use a suitable dataset. Datasets like
+Oxford5k or Paris6k are too small for a network to learn a distance metric
+applicable to any type of image. Instead, Gordo et al use the much larger
+Landmarks dataset, created by Babenko et al~\cite{babenko_neural_2014}.
+This dataset contains almost 200000 images in total of around 600
+different landmarks, mostly buildings.
+
+Another important step is the cleaning of the dataset. The Landmarks
+dataset contains a lot of noise and weak labels: many images do not
+represent the building they are labeled with. Gordo et al use a meticulous
+cleaning process: the main idea is to keep only the largest clusters
+of matching objects for each of the landmarks. The implementation is
+based on extracting SIFT and Hessian descriptors,
+matching them and verifying matches with an affine transformation model.
+This cleaning process is used in order to annotate the cleaned images
+with regions of interest as well.
+
+The cleaning requires a lot of processing,
+but is only done once for the dataset.
+The cleaned dataset is still fairly large, containing 49000 images and
+586 instances of landmarks.
+
+\subsection{Triplet choice}
+Another important step is the choice of triplets during training of
+the Siamese network. Schroff et al~\cite{schroff_facenet:_2015}
+and Weinberger et al~\cite{weinberger_distance_2006} already identified
+that using random triplets for training means that most triplets do not
+contribute to the loss at all, thus leading to vanishing gradients.
+So it makes sense to try and choose only the hardest triplets: for each
+reference image, find the image with the same label that is furthest from the
+reference image according to the current metric (the hardest positive),
+and the closest from the reference image having a different label
+(the hardest negative).
+However, choosing the hardest positive and hardest negative at each step
+is computationally too expensive. So Schroff et al~\cite{schroff_facenet:_2015}
+propose choosing the hardest triplets for each batch. Since there are only
+a few positive couples available in each batch, we simply choose all
+positive couples along with the hardest negative for each reference image
+in every batch. Since this can lead to a collapse in the model, Schroff
+et al propose choosing semi-hard negatives in the first epochs of
+training: for each reference image and positive sample, choose the hardest
+negative that is easier (further according to the metric) than the positive.
+
+The disadvantage of this strategy is that it requires large batches.
+Instead, Gordo et al~\cite{gordo_end--end_2016} uses the following
+strategy: pre-compute all descriptors in each epoch of training.
+Then, for each reference image, choose the $n$ easiest positive samples
+and the $m$ hardest negative samples. Compute the loss for all possible
+combinations and use the $n$ hardest triplets, with highest loss.
+This allows using smaller batches, while keeping the cost of computation
+low, since descriptors are only computed every epoch. It may also help
+eliminate some noise in the data, since only the easiest positive couples
+are chosen.
+
+\subsection{Limitations and goals}
+The main limitation of Gordo's method is that it aims at producing a
+general descriptor for comparing any type of image. This means that it
+is most effective when trained on large datasets, with many samples
+per instance. For datasets containing images from museums or tourist
+sites, this is usually not applicable, as there are usually only very few
+images available for each instance. While there are large datasets,
+these datasets usually contain a large number of instances as well.
+This makes it difficult to directly apply the state of the art on
+our datasets.
+
+On the other hand, it also means that the state of the art in
+image retrieval wants to avoid over-fit at all costs:
+the learned descriptor and metric should
+be able to provide a good metric for any kind of image.
+While this is usually desired in machine learning, in our case,
+one goal is to provide a metric specifically designed
+to discriminate between the images of the given dataset. This is because
+an audio-guide in a museum can be fine-tuned for that museum, as long
+as the fine-tuning is computationally cheap enough. So we do not care
+if a given audio-guide cannot identify images of multiple museums,
+as long as it can identify images of one museum with high precision.
+
+Another limitation of the state of the art is that it requires
+a tedious process to clean the dataset and annotate it with regions of
+interest. This is not suited to museum datasets which are usually very
+clean to begin with, by the nature of the dataset. Plus, the notion of
+region of interest is usually not relevant for this type of image:
+which part of a painting or piece of art contains the semantically
+relevant information is not obvious.
+
+Finally, an evaluation of the CNN developed by
+Gordo et al~\cite{gordo_deep_2016} was carried out.
+We used the published weights obtained in training this CNN on the
+Landmarks dataset.
+Figure % TODO figure and ref
+shows random examples of images in our dataset that were correctly matched
+with high confidence as well as images that were incorrectly matched.
+From this evaluation, we can make the following observations:
+
+\begin{enumerate}
+    \item Images that are very similar visually are well matched
+    \item % TODO
+    \item Images at different scales are not well matched
+\end{enumerate}
+
+Thus, a limitation of the current state of the art is matching
+images, where the object of interest is at different scales.

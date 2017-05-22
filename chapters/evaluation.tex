@@ -1,0 +1,153 @@
+% !TeX root = ../full_report.tex
+
+\chapter{Evaluation}
+\section{Datasets}\label{sec:datasets}
+The proposed approaches as well as several base-lines are evaluated
+on two datasets: the CLICIDE and GaRoFou datasets. These datasets are
+described in detail by Portaz et al~\cite{portaz_construction_nodate}.
+Both datasets are typical of instance search datasets
+in museums or touristic sites: the objects represented by their images
+are paintings for one and glass cabinets containing sculptures and artifacts
+for the other dataset. Both datasets contain a small number of images
+per instance and a small number of images in total.
+Table~\ref{tab:datasets} lists the content and statistics of the datasets
+in detail.
+
+\subsection{CLICIDE}
+The CLICIDE dataset contains photographs taken in the Grenoble Museum of Art.
+The objects represented in the photographs are paintings and still images,
+exclusively. The full dataset contains 207 images with no meaningful content,
+mostly showing walls. These images are labeled as such and have been filtered
+from the dataset in our evaluation. This explains the difference between
+total number of images and number of images in Table~\ref{tab:datasets}.
+Furthermore, there are 12 query images which contain objects not
+present in the reference images. These have been filtered out as well.
+
+The CLICIDE dataset is characteristic because the different images
+for each instance usually consist of at least one global view of the
+painting and multiple other images representing sub-regions of the
+same painting.
+
+\subsection{GaRoFou}
+The GaRoFou dataset contains high-resolution photographs taken in the
+Museun of Fourvière in Lyon. The objects represented in the photographs
+are a cultural heritage collection: sculptures, steles and small artifacts
+grouped together in glass cabinets.
+
+The full GaRoFou dataset is larger than the part used here: along with
+the dataset of images, it contains a dataset of videos as well as images
+extracted from these videos. The video collection has not been used as
+part of our research.
+
+\begin{table}
+\begin{tabular}{|*{3}{l|}}
+\hline & \emph{CLICIDE} & \emph{GaRoFou}\\
+\hline \emph{Type of objects} & Paintings & Glass cabinets
+containing various objects\\
+\hline \emph{\#Instances} & 464 & 311\\
+\hline \emph{\#Reference images} & 3245 & 1068\\
+\hline \emph{\#Query images (\#instances)} & 165 (134) & 184 (166)\\
+\hline \emph{Median \#images per instance} & 6 & 2\\
+\hline \emph{Min \#images per instance} & 1 & 1\\
+\hline \emph{Max \#images per instance} & 22 & 45\\
+\hline \emph{Total reference images (\#instances)} & 3452 (473) & 1068 (311)\\
+\hline \emph{Total query images (\#instances)} & 177 (143) & 184 (166)\\
+\hline
+\end{tabular}
+\caption{Details of the datasets used for evaluation\label{tab:datasets}}
+\end{table}
+
+\section{Metrics}
+There are several commonly used metrics in classification and information
+retrieval. The following sections define these metrics and their use
+in our research.
+
+\subsection{Precision}
+\begin{equation}\label{eq:preccls}
+P = \frac{TP}{PRED}
+\end{equation}
+
+\begin{equation}\label{eq:precir}
+P_q = \frac{RR_q}{RET}
+\end{equation}
+
+\begin{equation}\label{eq:preck}
+P_q@k = \frac{RR^k_q}{k}
+\end{equation}
+
+\begin{equation}\label{eq:prec1}
+MP@1 = \frac{1}{Q} \sum_q P_q@1
+\end{equation}
+
+In classification, precision is a measure of how many correct predictions
+were made out of all predictions. Equation~\ref{eq:preccls} shows this
+relationship: $TP$ are the true positives, the correct predictions,
+and $PRED$ is the number of all predictions, including incorrect ones.
+$PRED$ is usually equal to the size of the testing dataset in classification.
+
+In information retrieval, similarly,
+precision and more generally Precision$@k$ is a measure of how many
+relevant documents were retrieved out of all retrieved documents.
+However, the metric is evaluated for each query, instead of the whole
+testing dataset.
+Equations~\ref{eq:precir}~and~\ref{eq:preck} illustrate this: $P_q$ is
+the precision for query $q$, $RR_q$ represents the number of retrieved
+and relevant documents for query $q$.
+$RET$ represents the total number of retrieved documents. Finally, $RR^k_q$
+represents the number of retrieved, relevant documents out of the $k$ first
+retrieved documents for query $q$.
+
+Thus, Precision$@k$ simply uses a cut-off at $k$: it measures how many
+relevant documents there are in the first $k$ retrieved documents.
+
+In instance search, only the first retrieved document is important:
+If the first result is correct, we correctly identify the instance.
+Thus, we are mostly interested in Precision@1 in our research.
+In order to generalize this metric to all queries, the mean Precision@1
+is used, as defined in Equation~\ref{eq:prec1}. Here, $Q$ represents
+the number of queries.
+
+\subsection{Mean average precision}
+\begin{equation}\label{eq:recall}
+R_q = \frac{RR_q}{REL_q}
+\end{equation}
+
+\begin{equation}\label{eq:ap}
+AP_q = \frac{1}{REL_q} \sum_{k=1}^{RET} rel(RET_k)P@k
+\end{equation}
+
+\begin{equation}\label{eq:map}
+MAP = \frac{1}{Q} \sum_q AP_q
+\end{equation}
+
+In information retrieval, average precision is commonly used, since it
+allows to consider the order in which documents are returned by a system.
+Average precision represents the area under the precision-recall curve
+for a given query $q$. Recall for query $q$ is defined as in
+Equation~\ref{eq:recall} as the fraction of retrieved, relevant documents
+for query $q$ as compared to all relevant documents to query $q$.
+
+Equation~\ref{eq:ap} defines average precision for a given query $q$:
+it can be expressed as a finite sum
+over the Precision@k values at every possible cut-off $k$, multiplied by an
+indicator $rel(RET_k)$, which is 1 if the $k$-th retrieved document is
+relevant. This sum is then normalized by the total number of relevant
+documents for query $q$ $REL_q$.
+
+Finally, mean average precision $MAP$ represents the mean of all average
+precision values over $Q$ queries, as defined in Equation~\ref{eq:map}.
+
+In instance search, mean average precision is not important as we only
+care about the first ranked result. Nevertheless, it can be an interesting
+metric to allow better comparison between different systems, so we compute
+the mean average precision for all results along with the mean Precision@1.
+
+\section{Baselines}
+Table %TODO
+shows the baselines set for the two evaluation datasets, as described in
+Section~\ref{sec:datasets}.
+
+\section{Performance}
+\subsection{Training}
+\subsection{Evaluation}
+% TODO talk about some performance metrics (how much time to train, to evaluate, depending on network. what hardware was used)
