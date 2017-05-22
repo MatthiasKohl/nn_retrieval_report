@@ -1,0 +1,64 @@
+% !TeX root = ../full_report.tex
+
+\chapter{Contributions}
+\section{Fine-tuning a CNN}
+A first possible approach to this problem is to simply try to fine-tune
+a classification network to instance classification. This means that
+we consider each instance as a class, and optimize using a cross-entropy
+loss, typical for classification.
+
+\begin{equation}\label{eq:crossent}
+\mathcal{L} = - \frac{1}{N}
+\sum_{i=1}^N y_i \log \hat{y}_i + (1-y_i) \log (1-\hat{y}_i)
+\end{equation}
+
+Equation~\ref{eq:crossent} describes the cross-entropy loss for a
+given instance. $N$ is the number of samples, $y_i$ an indicator
+variable taking the value $1$ if sample $i$ belongs to the given
+instance and $0$ otherwise, and $\hat{y}_i$ is the predicted probability
+that sample $i$ belongs to the given instance.
+
+Fine-tuning a CNN for classification on different data has been studied
+intensively by Yosinki et al~\cite{yosinski_how_2014}. In particular,
+their study shows that it is only important to fine-tune the neurons
+of higher layers of a CNN. Furthermore, they show that
+fine-tuning can increase generalization even in the fine-tuned model.
+Both of these properties are desirable in our task, because they reduce
+the memory and time needed to train a network, as well as the need
+for a large dataset used for fine-tuning.
+
+The specific considerations we take with regards to fine-tuning are
+described in the following sections.
+
+\subsection{Data augmentation}
+Our datasets % TODO ref
+contain an average of less than 10 samples per instance. This is too little
+to train a typical CNN model designed for classification, even when
+fine-tuning.
+One way to overcome this is to augment the data, by randomly applying
+affine transformations, color perturbations and other random transformations.
+% TODO possibly reference some paper here
+
+Since we specifically identified an issue related to different scales
+in images, it makes sense to augment the data by randomly scaling the
+images. % TODO ref issue scaling
+
+We found that randomly rotating and flipping the images improved performance
+as well.
+
+\subsection{Transfer learning}
+The modularity of a CNN means that we can easily transfer
+the weights from a pre-trained model, and only retrain the highest
+abstraction layers. Specifically, we re-train all linear layers in the
+model, representing the highest-level layers.
+
+We also re-train the highest level convolutional layers, since our datasets
+contain many visually different images as compared to the ImageNet
+dataset used for pre-training the models.
+For the AlexNet architecture, we choose to re-train all layers above
+and including the last convolutional layer.
+For a ResNet architecture, we re-train all layers above and including the
+third to last block of convolutional layers. This contains the
+nine highest convolutional layers in total.
+
+\section{Proposed approach}
