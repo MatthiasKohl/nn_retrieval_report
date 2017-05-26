@@ -61,9 +61,156 @@ For a ResNet architecture, we re-train all layers above and including the
 third to last block of convolutional layers. This contains the
 nine highest convolutional layers in total.
 
+\subsection{Analysis of previous approaches}\label{sec:analysisprev}
+\paragraph{Identifying regions of interest}
+Previous approaches in image retrieval~\cite{}%TODO
+usually deal with regions of interest in one way or another.
+The idea is that in most cases, only certain parts of each image can
+be useful for comparison with other images. In addition to this,
+cropping images at their regions of interest can help with differences
+in scale of the images to compare: if a building is visible only in a small
+part of an image, cropping the image at that part and then re-scaling
+the part should set the building at a normalized scale.
+
+However, in instance search with museum datasets, it is not obvious
+where the regions of interest should be: most images represent an entire
+painting or parts of it and only some may containg the painting as part
+of the image with a wall in the background. This means for most images,
+the ground-truth region of interest is simply the entire image, and some
+may have a ground-truth region of interest which is almost the entire image,
+excluding only a small part of the background.
+
+On the other hand, a network fine-tuned on classification on such a dataset
+should be able to easily identify the region containing the painting, since
+the background wall is contained in almost all classes, which means it is a
+particularly bad indicator of the class. Thus, if the network is applied in
+a strided manner across an image, it should produce low maximal activations
+in parts containing big sections of background wall.
+
+Figure % TODO
+shows images, along with the heat map representing the maximal activation of
+a fine-tuned ResNet-152 at each coordinate,
+when the network is applied in a strided manner
+across the input image. From this image, we can see that the highest maximal
+activations of the network usually occur at the location of the object.
+This is true even if the object is not correctly classified by the highest
+maximal activations, as can be seen in images %TODO
+
+From the previous observation, we can confirm the assumption that the
+maximal activations of a fine-tuned network are a good indicator of
+the location of an object. Using this assumption, there is no need
+for a procedure to annotate regions of interest, as employed by most
+image retrieval approaches~\cite{}. % TODO
+
+On the other hand, using datasets developed for image retrieval,
+such as Paris6k or Oxford5k, % TODO cite
+this assumption cannot be applied, since the dataset is not clean
+enough for a fine-tuned network to be a good indicator of location of
+the query objects.
+
+\paragraph{Uncorrectly identified images}
+Figure % TODO
+shows typical images that were correctly identified versus images that
+were incorrectly identified, by a fine-tuned network as well as the network
+published by Gordo et al~\cite{}, along with the average precision for
+the respective queries.
+
+From these results, we see that the networks struggle with images at
+very different scales, achieving very low average precision,
+while images with similar scales are usually perfectly matched.
+
+Combining both of the properties identified in this section, we
+propose a novel approach to learn a strong descriptor for instance
+search in the next section.
+
 \section{Proposed approach}
-\subsection{In-depth analysis of previous approaches}
-\subsection{Approach based on FCN}
+The proposed approach is based on multiple steps as described in the
+following sections.
+
+\subsection{Fine-tuning on classification using an FCN}\label{sec:fcnfinetune}
+As shown in Section~\ref{sec:analysisprev}, a fine-tuned CNN is already
+a good indicator of the location of an object in our datasets.
+Additionally, it seems like scale is a particularly important factor.
+
+Thus, the idea is to start by fine-tuning a network with images
+at different scales. This can be achieved by using a fully
+convolutional network (FCN), as introduced by %TODO
+
+In a FCN, the final fully connected layers
+of a network are replaced by convolutional layers having a kernel
+which fits the entire domain of the output of the previous layer.
+This type of convolution is equivalent to a fully connected layer,
+but allows inputs (and outputs) of any size.
+The effect is that the network can be applied in one pass to an
+arbitrarily sized image. The output then represents the activations
+of the network as if it was applied in a strided manner across the image.
+The stride of a full network depends on the architecture and is 32
+pixels for the architectures used here: AlexNet and ResNet.
+
+Once a FCN is applied to the image, the loss
+is calculated by averaging the cross-entropy loss across all locations
+and outputs.
+The final loss is then obtained by passing images at different scales
+through the FCN and averaging across all cross-entropy losses of all
+outputs and scales.
+
+When training, all images are normalized at scale to have the same
+number of pixels in the smaller side. Note that for large aspect
+ratios and large scales of the smaller side,
+the memory consumption of training can be high for single images
+having a very large aspect ratio. To limit this spike in memory
+consumption, the aspect ratios are limited by introducing uniform
+random noise on the smaller side of images with high aspect ratios.
+
+\subsection{Descriptor extraction network}
+The second step of the proposed approach relies on the FCN, trained
+as described in the first step in Section~\ref{sec:fcnfinetune}.
+
+Figure % TODO
+illustrates the proposed architecture.
+
+To obtain a descriptor, we first apply the FCN and obtain all
+classification outputs at all locations. We only consider the
+maximal activation at all locations. The locations with the
+top $k$ maximal activations will form the descriptor.
+
+For each of these locations, the convolutional features are
+reduced by a L2-normalization, shifting and fully connected
+layer. Finally, all descriptors from the $k$ locations are
+sum-aggregated and L2-normalized again. This follows closely
+the architecture proposed by Gordo et al~\cite{}, as shown
+in Figure~\ref{}%TODO.
+
+When training, the network is applied to a triplet, all
+three descriptors are extracted and the triplet loss is
+applied. To make sure that the locations with highest
+maximal locations are correctly classified, a
+cross-entropy loss is applied to each of the $k$ locations
+used to compute the descriptor of the anchor image.
+These cross-entropy losses are averaged over the $k$
+locations.
+
 \subsection{Advantages}
+As shown in Section~\ref{sec:analysisprev}, this approach
+allows the network to decide which region of interest is
+best suited for classification and ultimately which regions
+are best suited for comparison with other images.
+
+Another advantage is that this approach does not require
+any annotation of the images with regions of interest,
+which can be a long, manual or automatic process, as evident
+from the cleaning process used by Gordo et al~\cite{}.
+
+Finally, an important property of the descriptor is that it
+heavily relies on the classification
+capabilities of the network. This means the descriptor is
+mostly meaningless for a different dataset and needs
+to be learned for each dataset. This can be an advantage,
+since the descriptor can be better suited to a particular
+dataset and the learning process does not take long, as shown
+in Section~\ref{TODO}. On the other hand, this means that
+the descriptor cannot be applied in a typical image retrieval
+task.
+
 % TODO
 
