@@ -313,26 +313,45 @@ consumption, the aspect ratios are limited by introducing uniform
 random noise on the smaller side of images with high aspect ratios.
 
 \subsection{Descriptor extraction network}
+\begin{figure}
+\begin{subfigure}{\textwidth}
+\includegraphics[width=\textwidth]{img/contrib_deploy.png}
+\caption{Proposed architecture for instance search, at deploy time
+\label{fig:contribdeploy}}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+\includegraphics[width=\textwidth]{img/contrib_train.png}
+\caption{Proposed architecture for instance search, at training time
+\label{fig:contribtrain}}
+\end{subfigure}
+\caption{Proposed architecture for instance search, based on a FCN
+~\cite{long_fully_2015} for region proposals. The descriptor extraction
+for each region is similar to the architecture by
+Gordo et al~\cite{gordo_deep_2016}, as shown in
+Figures~\ref{fig:gordo_deploy}~and~\ref{fig:gordo_train}
+\label{fig:contrib}}
+\end{figure}
+
 The second step of the proposed approach relies on the FCN, trained
 as described in the first step in Section~\ref{sec:fcnfinetune}.
 
-Figure % TODO
-illustrates the proposed architecture.
-
-To obtain a descriptor, we first apply the FCN and obtain all
-classification outputs at all locations. We only consider the
+Figure~\ref{fig:contrib} illustrates the proposed architecture.
+To obtain a descriptor, we first apply the convolutional layers of
+a previous architecture, such as AlexNet or ResNet. We then obtain all
+classification outputs at all locations using an FCN. We only consider the
 maximal activation at all locations. The locations with the
 top $k$ maximal activations will form the descriptor.
 
-For each of these locations, the convolutional features are
-reduced by a L2-normalization, shifting and fully connected
+For each of these locations, we closely follow the architecture
+proposed by Gordo et al~\cite{gordo_deep_2016}, as shown in
+Figure~\ref{fig:gordo_deploy}. The convolutional features are
+reduced by a L2-normalization, then a shifting and fully connected
 layer. Finally, all descriptors from the $k$ locations are
-sum-aggregated and L2-normalized again. This follows closely
-the architecture proposed by Gordo et al~\cite{gordo_deep_2016},
-as shown in Figure~\ref{fig:gordo_deploy}.
+sum-aggregated and L2-normalized again.
 
-When training, the network is applied to a triplet, all
-three descriptors are extracted and the triplet loss is
+When training, the network is applied to a triplet of images.
+All three descriptors are extracted and the triplet loss is
 applied. To make sure that the locations with highest
 maximal locations are correctly classified, a
 cross-entropy loss is applied to each of the $k$ locations
@@ -361,6 +380,3 @@ dataset and the learning process does not take long, as shown
 in Section~\ref{sec:perfresults}. On the other hand, this means that
 the descriptor cannot be applied in a typical image retrieval
 task.
-
-% TODO
-
