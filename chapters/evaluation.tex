@@ -40,7 +40,7 @@ extracted from these videos. The video collection has not been used as
 part of our research.
 
 \begin{table}
-\begin{tabular}{|*{3}{l|}}
+\begin{tabular}{|l|l|l|}
 \hline & \emph{CLICIDE} & \emph{GaRoFou}\\
 \hline \emph{Type of objects} & Paintings & Glass cabinets
 containing various objects\\
@@ -177,7 +177,7 @@ Hence, after a query image is compared to all reference images through
 a vector-matrix multiplication, the index of the highest value in the
 resulting vector indicates the most similar reference image.
 
-\section{Baselines}
+\section{Baselines}\label{sec:baselines}
 Table~\ref{tab:baselines} shows the baselines set for the two evaluation
 datasets, as described in Section~\ref{sec:datasets}. The metric used
 to compare systems is mean Precision@1, as described in
@@ -203,7 +203,7 @@ be pre-processed, as the network works with region proposals and thus accepts
 any scale of image. This network outputs a descriptor with 2048 dimensions.
 
 \begin{table}
-\begin{tabular}{|*{3}{l|}}
+\begin{tabular}{|l|c|c|}
 \hline & \emph{CLICIDE} & \emph{GaRoFou}\\
 \hline \emph{SIFT} & 70.08 & 78.82\\
 \hline \emph{AlexNet IM} & 57.58 & 76.63\\
@@ -213,13 +213,40 @@ any scale of image. This network outputs a descriptor with 2048 dimensions.
 & 92.73 & 95.65\\
 \hline
 \end{tabular}
-\caption{Evaluation base-lines set for both datasets. The results are
-expressed in percentage points of Mean Precision@1\label{tab:baselines}}
+\caption{Evaluation base-lines set for the CLICIDE and GaRoFou datasets.
+The results are expressed in percentage points of
+Mean Precision@1\label{tab:baselines}}
 \end{table}
 
 \section{Performance}
+The performance evaluation is carried out on a typical system used for training CNNs.
+The components approximately represent the highest standard available for a server
+architecture in 2016.
+
+The server contains the following components:
+\begin{enumerate}
+    \item CPU: Intel\textsuperscript{\textregistered} Xeon\textsuperscript{\textregistered}
+    E5-2623 v4, 16 cores, 10MB cache, 2.60GHz
+    \item Memory: 142 GB, DDR4 % TODO mem speed
+    \item Graphics card: NVIDIA\textsuperscript{\textregistered} Titan X, Pascal architecture,
+    12 GB memory
+\end{enumerate}
+
+Performance is measured in time in seconds required to execute the task,
+as well as GPU memory required. If multiple sub-tasks are performed for
+a task, the reported performance is simply the accumulation of time and
+the maximum of required GPU memory of the sub-tasks.
 \subsection{Training}
-% TODO make test on empty decore0 server with one Titan X (possibly extrapolate from 5 epochs or so)
-\subsection{Evaluation}
-% TODO make test on empty decore0 server with one Titan X
-% TODO talk about some performance metrics (how much time to train, to evaluate, depending on network. what hardware was used)
+The training performance is evaluated using the server as described above and the CLICIDE
+dataset as described in Section~\ref{sec:datasets}, containing 3245 images.
+
+The training performance was measured only for tasks specific to the dataset,
+as other tasks can be performed a single time upfront. In particular, this means
+that pre-training a network on a dataset which is not specific to our task is
+counted as utilizing no time or memory.
+\subsection{Testing}
+The testing performance is evaluated using the server as described above and
+the validation dataset of CLICIDE, as described in Section~\ref{sec:datasets}.
+This dataset contains 165 images. However, the performance is reported
+as the average performance for a single image, as this is the most common
+use-case when applying the instance search system.
