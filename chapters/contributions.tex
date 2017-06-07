@@ -1,8 +1,8 @@
 % !TeX root = ../full_report.tex
 
 \chapter{Contributions}
-\section{Fine-tuning a CNN}
-A first possible approach to this problem is to simply try to fine-tune
+\section{Fine-tuning a CNN}\label{sec:finetuning}
+A first possible approach to this problem is to fine-tune
 a classification network to instance classification. This means that
 we consider each instance as a class, and optimize using a cross-entropy
 loss, typical for classification.
@@ -31,7 +31,7 @@ The specific considerations we take with regards to fine-tuning are
 described in the following sections.
 
 \subsection{Data augmentation}
-Our datasets % TODO ref
+Our datasets, presented in Section~\ref{sec:datasets},
 contain an average of less than 10 samples per instance. This is too little
 to train a typical CNN model designed for classification, even when
 fine-tuning.
@@ -40,11 +40,23 @@ affine transformations, color perturbations and other random transformations.
 % TODO possibly reference some paper here
 
 Since we specifically identified an issue related to different scales
-in images, it makes sense to augment the data by randomly scaling the
-images. % TODO ref issue scaling
+in images in Sections~\ref{sec:limitations}~and~\ref{sec:incorrectimages},
+it it natural to augment the data by randomly scaling the images in both
+dimensions.
 
-We found that randomly rotating and flipping the images improved performance
-as well.
+We found that randomly rotating and flipping the images improved
+performance as well, thus we perform this type of data augmentation
+throughout our experiments.
+
+For data augmentation in order to fine-tune a CNN, we use the
+following values in our experiments:
+\begin{enumerate}
+    \item Rotation: any angle is chosen with the same probability.
+    \item Scaling: the scaling factor is chosen independently for each
+    dimension in the range $[0.75,1.25]$.
+    \item Flipping: with probability $0.5$, images are horizontally
+    flipped.
+\end{enumerate}
 
 \subsection{Transfer learning}
 The modularity of a CNN means that we can easily transfer
@@ -61,4 +73,481 @@ For a ResNet architecture, we re-train all layers above and including the
 third to last block of convolutional layers. This contains the
 nine highest convolutional layers in total.
 
+\section{Simplified Siamese architecture}\label{sec:simplifiedsiam}
+We follow the methodology of Gordo et al~\cite{gordo_deep_2016} and
+propose a simplified Siamese architecture. As shown in
+Figure~\ref{fig:gordo_train}, the previous state-of-the-art is set
+by a Siamese architecture using the triplet loss.
+
+\subsection{Triplet loss}
+\begin{equation}\label{eq:tripletloss}
+\mathcal{L} = \sum_{i=1}^N \frac{1}{2}
+\max(0, \|x^a_i - x^p_i\|_2^2 - \|x^a_i - x^n_i\|_2^2 + 2m)
+\end{equation}
+
+Equation~\ref{eq:tripletloss} describes the triplet loss for $N$
+triplets. Each triplet is composed of an anchor image with descriptor
+$x^a$, a positive/relevant image with descriptor $x^p$ and a
+negative/non-relevant image with descriptor $x^n$. A margin $m$ is added
+to the loss, which describes the distance at which two images are
+considered similar enough to be relevant with respect to each other.
+Throughout our experiments, this margin is set to a value of $m=0.1$.
+
+For normalized descriptors $x$ and $y$, the squared distance $\| x - y \|_2^2$
+is closely related to the cosine similarity and the dot-product through
+the relationship derived in Equation~\ref{eq:sqdistcosdot}.
+
+\begin{equation}\label{eq:sqdistcosdot}
+\begin{array}{ll}
+\multicolumn{2}{l}{\forall x, y \in \mathbb{R}^n, \|x\|_2 = 1, \|y\|_2 = 1}\\
+\|x-y\|_2^2 &= (x_1-y_1)^2 + \dots + (x_n-y_n)^2\\
+&=(x_1^2 + \dots + x_n^2) - 2(x_1y_1 + \dots + x_ny_n) +
+(y_1^2 + \dots + y_n^2)\\
+&=2 - 2xy = 2 - 2\cos(x, y)
+\end{array}
+\end{equation}
+
+With this Equation, we can re-write the triplet loss for normalized descriptors
+using the dot-product, as shown in Equation~\ref{eq:tripletlossnorm}.
+This equation represents the version of the triplet loss used in
+our experiments. This means all descriptors must be normalized before
+the loss is evaluated.
+
+\begin{equation}\label{eq:tripletlossnorm}
+\mathcal{L} = \sum_{i=1}^N
+\max(0, x^a_i x^n_i - x^a_i x^p_i + m)
+\end{equation}
+
+\subsection{Simplified architecture}
+We simplify the architecture shown in Figure~\ref{fig:gordo_train}
+by removing the region proposal network and region of interest pooling.
+We justify in Section~\ref{sec:roi} why these components are not
+relevant for our datasets and research problem in general.
+Except for this change, the architecture is kept exactly as described
+by Figures~\ref{fig:gordo_deploy}~and~\ref{fig:gordo_train}.
+
+\subsection{Triplet selection}
+As noted by previous authors, when using the triplet loss, it is
+crucial to choose the best triplets during training in order to
+obtain convergence. In particular, many triplets are irrelevant
+and do not produce any loss since they are \emph{too easy} for the network.
+
+Hence, the first idea is to choose the hardest triplets, as proposed by
+Schroff et al~\cite{schroff_facenet:_2015}. However, as they show in
+their paper, this can lead to a collapsing model early on in training
+so they choose  \emph{semi-hard} triplets instead. Semi-hard triplets
+are obtained as follows:
+use all possible positive couples of images: couples of images from the
+same instance. For each positive couple, choose the hardest negative
+that is easier than the positive couple. Hard and easy are defined
+by the dot-product between the descriptors of the images: a high value
+of the dot-product for images of the same instance represents an easy
+positive couple, a high value of the dot-product for images of different
+instances represents a hard negative couple.
+The value of all dot-products are determined before each pass over
+the whole training data during training, for all couples of images.
+
+Gordo et al~\cite{gordo_end--end_2016} propose a more complex mechanism.
+First, they also calculate the values of dot-products for all couples of
+images before each pass over the training data.
+Second, for each image, choose the $n$ easiest positive images and the
+$m$ hardest negatives. Then, calculate the loss for all possible combinations
+and use the $o$ triplets with the highest loss.
+This method probably eliminates some noise when choosing the easiest
+positive couples, for images that are labeled as being the same instance
+but are not visually similar.
+However, in experiments, we found that this method does not perform well
+for datasets with few images per instance, since we either have to
+choose $n$ as very low or we choose all positive couples after all for
+most instances.
+
+Hence, in our experiments, we choose the semi-hard triplet selection
+for the first two passes over the dataset, after which we only choose
+the hardest negatives for all positive couples.
+
+\section{Analysis of previous approaches}\label{sec:analysisprev}
+\subsection{Identifying regions of interest}\label{sec:roi}
+Previous approaches in image retrieval~\cite{gordo_end--end_2016}
+~\cite{salvador_faster_2016}~\cite{tolias_particular_2015}
+usually deal with regions of interest in one way or another.
+The idea is that in most cases, only certain parts of each image can
+be useful for comparison with other images. In addition to this,
+cropping images at their regions of interest can help with differences
+in scale of the images to compare: if a building is visible only in a small
+part of an image, cropping the image at that part and then re-scaling
+the part should set the building at a normalized scale.
+
+However, in instance search with museum datasets, it is not obvious
+where the regions of interest should be: most images represent an entire
+painting or parts of it and only some may contain the painting as part
+of the image with a wall in the background. This means for most images,
+the ground-truth region of interest is simply the entire image, and some
+may have a ground-truth region of interest which is almost the entire image,
+excluding only a small part of the background.
+
+On the other hand, a network fine-tuned on classification on such a dataset
+should be able to easily identify the region containing the painting, since
+the background wall is contained in almost all classes, which means it is a
+particularly bad indicator of the class. Thus, if the network is applied in
+a strided manner across an image, it should produce low maximal activations
+in parts containing big sections of background wall.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample1_10A-0519.png}
+\caption{Image with label 10A\label{fig:sample1_id}}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample1_heatmap.png}
+\caption{Heat-map for 10A\label{fig:sample1_hm}}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample1_labels.png}
+\caption{Label-map for 10A\label{fig:sample1_lab}}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample2_5P-0508.png}
+\caption{Image with label 5P\label{fig:sample2_id}}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample2_heatmap.png}
+\caption{Heat-map for 5P\label{fig:sample2_hm}}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample2_labels.png}
+\caption{Label-map for 5P\label{fig:sample2_lab}}
+\end{subfigure}
+
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample3_30P-0976.png}
+\caption{Image with label 30P\label{fig:sample3_id}}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample3_heatmap.png}
+\caption{Heat-map for 30P\label{fig:sample3_hm}}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+\includegraphics[width=\textwidth]{img/sample3_labels.png}
+\caption{Label-map for 30P\label{fig:sample3_lab}}
+\end{subfigure}
+\caption{Sample images (scaled to a smaller side of 448 pixels)
+along with the heat-map of maximal activation values
+at each location when a fine-tuned ResNet-152 is applied to the image in a
+strided manner, as well as the labels of all maximal activations that are
+greater than the mean maximal activation\label{fig:heatmaps}}
+\end{figure}
+
+Figure~\ref{fig:heatmaps} shows images, along with the heat map
+representing the maximal activation of a fine-tuned ResNet-152 at
+each coordinate, when the network is applied in a strided manner
+across the input image. The fine-tuning was carried out as described in
+Section~\ref{sec:finetuning}.
+From this image, we can see that the highest maximal
+activations of the network usually occur at the location of the object.
+This is true even if the object is not correctly classified by some of
+the highest activations as can be seen in images
+~\ref{fig:sample2_id}~-~\ref{fig:sample2_lab}.
+
+In the images
+~\ref{fig:sample3_id}~-~\ref{fig:sample3_lab}, it seems like many
+high maximal activations occur specifically in the background area.
+However, the corresponding label-map shows that these areas correspond
+to the labels 38E and 43D. Both of these labels are pieces of art which
+consist mostly of the background wall. In this sense, it is not
+entirely wrong to consider 'wall-only' patches of the image as instances of
+these pieces of art. This simply means that the image consists of two
+separate regions of interest: one region with the painting (label 30P)
+and one region with the wall (labels 38E/43D).
+
+From these observations, we can confirm the assumption that the
+maximal activations of a fine-tuned network are a good indicator of
+the location of an object, or a combination of different objects.
+Using this assumption, there is no need
+for a procedure to annotate regions of interest, as employed by most
+image retrieval approaches. % TODO
+
+On the other hand, using datasets developed for image retrieval,
+such as Paris6k~\cite{philbin_lost_2008} or
+Oxford5k~\cite{philbin_object_2007},
+this assumption cannot be applied, since the dataset is not clean
+enough for a fine-tuned network to be a good indicator of location of
+the query objects.
+
+\subsection{Incorrectly identified images}\label{sec:incorrectimages}
+\begin{figure}
+\centering
+\begin{subfigure}{\textwidth}
+\begin{tabular}{|c|*{6}{c}}
+\includegraphics[width=0.12\textwidth]{img/11J-0521.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11J-0.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11J-1.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11J-2.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11J-3.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11J-4.JPG} \\
+\end{tabular}
+\caption{Correctly identified query with label 11J,
+along with its reference images.\newline
+Average precision Gordo's net: 1.0, fine-tuned ResNet-152: 1.0
+\label{fig:correct11J}}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+\begin{tabular}{|c|*{6}{c}}
+\includegraphics[width=0.12\textwidth]{img/23D-0740.JPG} &
+\includegraphics[width=0.12\textwidth]{img/23D-0.JPG} &
+\includegraphics[width=0.12\textwidth]{img/23D-1.JPG} &
+\includegraphics[width=0.12\textwidth]{img/23D-2.JPG} &
+\includegraphics[width=0.12\textwidth]{img/23D-3.JPG} &
+\includegraphics[width=0.12\textwidth]{img/23D-4.JPG} &
+\includegraphics[width=0.12\textwidth]{img/23D-5.JPG} \\
+\end{tabular}
+\caption{Correctly identified query with label 23D,
+along with its reference images.\newline
+Average precision Gordo's net: 1.0, fine-tuned ResNet-152: 1.0
+\label{fig:correct23D}}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+\begin{tabular}{|c|*{6}{c}}
+\includegraphics[width=0.12\textwidth]{img/1C-0454.JPG} &
+\includegraphics[width=0.12\textwidth]{img/1C-0.JPG} &
+\includegraphics[width=0.12\textwidth]{img/1C-1.JPG} &
+\includegraphics[width=0.12\textwidth]{img/1C-2.JPG} &
+\includegraphics[width=0.12\textwidth]{img/1C-3.JPG} &
+\includegraphics[width=0.12\textwidth]{img/1C-4.JPG} \\
+\end{tabular}
+\caption{Incorrectly identified query with label 1C,
+along with its reference images.\newline
+Average precision Gordo's net: 0.113, fine-tuned ResNet-152: 0.014
+\label{fig:incorrect1C}}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+\begin{tabular}{|c|*{6}{c}}
+\includegraphics[width=0.12\textwidth]{img/5B-0506.JPG} &
+\includegraphics[width=0.12\textwidth]{img/5B-0.JPG} &
+\includegraphics[width=0.12\textwidth]{img/5B-1.JPG} &
+\includegraphics[width=0.12\textwidth]{img/5B-2.JPG} &
+\includegraphics[width=0.12\textwidth]{img/5B-3.JPG} &
+\includegraphics[width=0.12\textwidth]{img/5B-4.JPG} \\
+\end{tabular}
+\caption{Incorrectly identified query with label 5B,
+along with its reference images.\newline
+Average precision Gordo's net: 0.013, fine-tuned ResNet-152: 0.002
+\label{fig:incorrect5B}}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+\begin{tabular}{|c|*{6}{c}}
+\includegraphics[width=0.12\textwidth]{img/11C-0351.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11C-0.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11C-1.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11C-2.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11C-3.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11C-4.JPG} \\
+\end{tabular}
+\caption{Incorrectly identified query with label 11C,
+along with its reference images.\newline
+Average precision Gordo's net: 0.004, fine-tuned ResNet-152: 0.004
+\label{fig:incorrect11C}}
+\end{subfigure}
+\caption{Sample images that were correctly and incorrectly identified
+by a fine-tuned ResNet-152, as well as the network published by Gordo
+et al~\cite{gordo_deep_2016}, referred to as Gordo's net. For each image,
+the query image is shown at the very left and all possible correct reference
+images are shown to the right of the query. The caption contains the
+associated average precision values.
+\label{fig:incorrectimg}}
+\end{figure}
+
+Figure~\ref{fig:incorrectimg}
+shows typical images that were correctly identified versus images that
+were incorrectly identified, by a fine-tuned network as well as the network
+published by Gordo et al~\cite{gordo_deep_2016}, along with the average
+precision for the respective queries.
+
+From these results, we see that the networks struggle with images at
+very different scales, achieving very low average precision,
+while images with similar scales are usually perfectly matched.
+% TODO more detail
+Combining both of the properties identified in this section, we
+propose a novel approach to learn a strong descriptor for instance
+search in the next section.
+
 \section{Proposed approach}
+The proposed approach is based on multiple steps as described in the
+following sections.
+
+\subsection{Fine-tuning on classification using an FCN}\label{sec:fcnfinetune}
+As shown in Section~\ref{sec:analysisprev}, a fine-tuned CNN is already
+a good indicator of the location of an object in our datasets.
+Additionally, it seems like scale is a particularly important factor.
+
+Thus, the idea is to start by fine-tuning a network with images
+at different scales. This can be achieved by using a fully
+convolutional network (FCN), as introduced by
+Long et al~\cite{long_fully_2015}.
+
+In a FCN, the final fully connected layers
+of a network are replaced by convolutional layers having a kernel
+which fits the entire domain of the output of the previous layer.
+This type of convolution is equivalent to a fully connected layer,
+but allows inputs (and outputs) of any size.
+The effect is that the network can be applied in one pass to an
+arbitrarily sized image. The output then represents the activations
+of the network as if it was applied in a strided manner across the image.
+The stride of a full network depends on the architecture and is 32
+pixels for the architectures used here: AlexNet and ResNet.
+
+Once a FCN is applied to the image, the loss
+is calculated by averaging the cross-entropy loss across all locations
+and outputs.
+The final loss is then obtained by passing images at different scales
+through the FCN and averaging across all cross-entropy losses of all
+outputs and scales. Equation~\ref{eq:fcnloss} shows the loss for a
+single image. $S$ represents the number of scales at which the image
+is passed through the network.
+$H_s$ and $W_s$ represent the height and width of the feature
+map respectively, given the scale $s$ of the input image. $y^{h,w}$
+represents the prediction of the network at spatial location
+$(h,w)$ in the full feature map.
+
+\begin{equation}\label{eq:fcnloss}
+\mathcal{L} = \frac{1}{S} \sum_{s=1}^S - \frac{1}{H_s*W_s}
+\sum_{h=1}^{H_s} \sum_{w=1}^{W_s} y^{h,w} \log \hat{y} +
+(1-y^{h,w}) \log (1-\hat{y})
+\end{equation}
+
+We can see from the Equation that we chose to give each scale of the image
+the same weight in the loss. Additionally, we can see that this loss can
+only be applied to one image at a time, hence the true label $\hat{y}$ is
+a constant in Equation~\ref{eq:fcnloss}.
+This is because the images are passed to the network at their true
+aspect ratio, which means the loss for different images may have different
+values for the heights and widths of the feature maps $H_s$ and $W_s$.
+
+In order to normalize the sizes of the features present in the images,
+all images are scaled to have the same
+number of pixels in the smaller side. Note that for large aspect
+ratios and large scales of the smaller side,
+the memory consumption of training can be high for single images
+having a very large aspect ratio. To limit this spike in memory
+consumption, the aspect ratios are limited by introducing uniform
+random noise on the smaller side of images with high aspect ratios.
+
+In our experiments, we use a maximal aspect ratio of $2.0$ and images
+at two scales of $448$ and $224$ pixels for the smaller side. We found
+that the AlexNet architecture did not have good convergence behavior,
+thus we used scales of $384$ and $224$ instead.
+
+\subsubsection{Gradient descent using micro-batches}
+Since only a single image is passed to the network at a time, the
+stochastic gradient descent algorithm used to optimize the parameters
+of the model does not converge, as a single image is not representative
+of the dataset as a whole and does not form a large enough mini-batch.
+
+Instead, we form a mini-batch by accumulating gradients from many
+\emph{micro-batches}, each of which is made up of only a single image.
+This allows to form a mini-batch of any size to obtain stable convergence
+in stochastic gradient descent.
+
+However, using a micro-batch formed of a single image represents an issue
+with the ResNet architecture: this model uses batch-norm layers, introduced
+by Ioffe et al~\cite{ioffe_batch_2015}. When training a model, the layer
+normalizes each batch by its mean and variance. However, it keeps a running
+mean and variance, which approximates the true mean and variance of the
+dataset and which is applied during testing. With a micro-batch size
+of 1, this running mean and variance cannot be inferred, which leads to
+very poor behavior of the model. Instead, we pre-train the model on the
+dataset as described in Section~\ref{sec:finetuning} in order to obtain
+a correct estimate of the running mean and variance. Then, we preset the
+network with the parameters of this fine-tuned network when training the
+FCN as described above.
+
+\subsection{Descriptor extraction network}
+\begin{figure}
+\begin{subfigure}{\textwidth}
+\includegraphics[width=\textwidth]{img/contrib_deploy.png}
+\caption{Proposed architecture for instance search, at deploy time
+\label{fig:contribdeploy}}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+\includegraphics[width=\textwidth]{img/contrib_train.png}
+\caption{Proposed architecture for instance search, at training time
+\label{fig:contribtrain}}
+\end{subfigure}
+\caption{Proposed architecture for instance search, based on a FCN
+~\cite{long_fully_2015} for region proposals. The descriptor extraction
+for each region is similar to the architecture by
+Gordo et al~\cite{gordo_deep_2016}, as shown in
+Figures~\ref{fig:gordo_deploy}~and~\ref{fig:gordo_train}
+\label{fig:contrib}}
+\end{figure}
+
+The second step of the proposed approach relies on the FCN, trained
+as described in the first step in Section~\ref{sec:fcnfinetune}.
+
+Figure~\ref{fig:contrib} illustrates the proposed architecture.
+To obtain a descriptor, we first apply the convolutional layers of
+a previous architecture, such as AlexNet or ResNet. We then obtain all
+classification outputs at all locations using the pre-trained FCN.
+We only consider the maximal activation at all locations.
+The locations with the top $k$ maximal activations will form the descriptor.
+
+For each of these locations, we closely follow the architecture
+proposed by Gordo et al~\cite{gordo_deep_2016}, as shown in
+Figure~\ref{fig:gordo_deploy}. The convolutional features are
+reduced by a $\|\cdot\|_2$-normalization, then a shifting and fully connected
+layer. Finally, all descriptors from the $k$ locations are
+sum-aggregated and $\|\cdot\|_2$-normalized again.
+
+When training, the network is applied to a triplet of images.
+These triplets are chosen as described in Section~\ref{sec:simplifiedsiam}
+for the simplified Siamese architecture.
+
+Additionally, we regularize the triplet loss by a cross-entropy loss
+to make sure that the $k$ locations with highest
+maximal activations are correctly classified. This loss is averaged over
+the $k$ locations.
+
+Equation~\ref{eq:proposedloss} shows the full loss as used in our
+experiments to train the proposed model, for a $N$ images. In this
+equation, $(h_l, w_l)$ represent the spatial coordinates of the $l$-th
+region of highest maximal activation in the feature map produced by
+the FCN.
+
+\begin{equation}\label{eq:proposedloss}
+\mathcal{L} = \sum_{i=1}^N \left( \max(0, x^a_i x^n_i - x^a_i x^p_i + m) +
+\alpha \frac{1}{N} \frac{1}{k} \sum_{l=1}^k -
+y_i^{h_l,h_l} \log \hat{y}_i + (1-y_i^{h_l,w_l}) \log (1-\hat{y}_i) \right)
+\end{equation}
+
+In our experiments, we choose the number of regions with highest maximal
+activation to be $k=4$ and the regularization hyper-parameter $\alpha=1.0$.
+The margin of the triplet loss is $m=0.1$ as described in
+Section~\ref{sec:simplifiedsiam}.
+
+\subsection{Advantages}
+As shown in Section~\ref{sec:analysisprev}, this approach
+allows the network to decide which region of interest is
+best suited for classification and ultimately which regions
+are best suited for comparison with other images.
+
+Another advantage is that this approach does not require
+any annotation of the images with regions of interest,
+which can be a long, manual or automatic process, as evident
+from the cleaning process used by Gordo et al~\cite{gordo_end--end_2016}.
+
+Finally, an important property of the descriptor is that it
+heavily relies on the classification
+capabilities of the network. This means the descriptor is
+mostly meaningless for a different dataset and needs
+to be learned for each dataset. This can be an advantage,
+since the descriptor can be better suited to a particular
+dataset and the learning process does not take long, as shown
+in Section~\ref{sec:perfresults}. On the other hand, this means that
+the descriptor cannot be applied in a typical image retrieval
+task.

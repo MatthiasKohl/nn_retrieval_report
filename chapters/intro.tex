@@ -49,6 +49,17 @@ retrieval, we do not care about the rank of the returned images, since
 we only consider the highest ranked image, which should represent the
 instance to retrieve.
 
+% TODO possibly put this into different section
+Finally, to allow fast evaluation of the system, our goal is to develop
+a system that provides a single descriptor for each image, which should
+be small enough to easily be stored for all reference images and fast
+to compute.
+Two images should be compared according to a distance metric, which should
+also be fast to compute. This requirement is important, since a possible
+device used as an augment audio-guide will record many images per second,
+so to be responsive, it should be possible to evaluate the system in
+real-time or close to real-time.
+
 % TODO possibly elaborate here
 
 \section{Challenges}
