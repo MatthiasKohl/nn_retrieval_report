@@ -171,7 +171,7 @@ in face recognition tasks by Schroff et al~\cite{schroff_facenet:_2015}.
 The triplet loss was first introduced by
 Weinberger et al~\cite{weinberger_distance_2006} as a way of learning
 the best suited distance metric in a k-nearest neighbor classification
-problem.
+problem. Section~\ref{sec:tripletloss} describes this loss in more detail.
 This is the reason why the triplet loss was chosen for image retrieval:
 the goal is to learn a metric which allows to discriminate couples of
 images containing the same instance from couples of images containing
@@ -235,7 +235,7 @@ low, since descriptors are only computed every epoch. It may also help
 eliminate some noise in the data, since only the easiest positive couples
 are chosen.
 
-\subsection{Limitations and goals}
+\subsection{Limitations and goals}\label{sec:limitations}
 The main limitation of Gordo's method is that it aims at producing a
 general descriptor for comparing any type of image. This means that it
 is most effective when trained on large datasets, with many samples
@@ -270,14 +270,14 @@ Finally, an evaluation of the CNN developed by
 Gordo et al~\cite{gordo_deep_2016} was carried out.
 We used the published weights obtained in training this CNN on the
 Landmarks dataset.
-Figure % TODO figure and ref
-shows random examples of images in our dataset that were correctly matched
+Figure~\ref{fig:incorrectimg}
+shows examples of images in our dataset that were correctly matched
 with high confidence as well as images that were incorrectly matched.
-From this evaluation, we can make the following observations:
+From these images, we make the following observations in
+Section~\ref{sec:incorrectimages}:
 
 \begin{enumerate}
     \item Images that are very similar visually are well matched
-    \item % TODO
     \item Images at different scales are not well matched
 \end{enumerate}
 

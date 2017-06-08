@@ -2,5 +2,65 @@
 
 \chapter{Conclusion}
 \section{Conclusions from our research}
+During our research, we analyzed state-of-the-art approaches in
+image classification and image retrieval and their application to
+the instance search problem. We found that these approaches struggle
+with query images and reference images being at different scales.
+Additionally, the region proposals used by the state-of-the-art do not
+seem applicable to the problem of instance search.
+
+We have presented a novel approach, which consists of two key steps.
+First, we leverage the concept of fully convolutional networks in order
+to perform classification training at different scales, without a heavy
+computational overhead. Second, we show that the fully convolutional
+network can be used to obtain region proposals without the need for
+an additional component in the network and training. This is particularly
+important, since region proposals are difficult to define manually in
+our research problem.
+
+Finally, the proposed network keeps all the benefits of state-of-the-art
+approaches: it can be trained end-to-end and it produces an effective
+global descriptor, which can be compared using the dot-product.
+Additionally, it is modular in the sense that it can be built upon
+any type of CNN, pre-trained for classification.
+Furthermore, the proposed network is fast to evaluate and the training
+time for each dataset is reasonable.
+
+Through multiple experiments on two datasets, we show that the descriptor
+obtained using our proposed network outperforms previous state-of-the-art
+approaches on the instance search task, while being just as memory-efficient
+and fast.
+
 \section{Future work}
-% TODO talk about Kaiser et al (rare events)
+\subsection{Few-shots classification}
+While we explored different ideas in this report, some have not been
+considered yet. For one, a paper by Kaiser et al~\cite{kaiser_learning_2017}
+was presented earlier this year, which focuses on few-shots classification
+and achieves state-of-the-art results.
+
+As noted before, our research problem shares many similarities with the
+few-shots classification problem. Furthermore, this paper presents a
+method of combining the triplet loss and cross-entropy loss in order to
+organize a memory of so-called rare events. This is similar to our proposed
+approach and may be adapted to our research problem. At the very least,
+it could provide significant insight to the instance search problem.
+
+\subsection{Conditional similarities}
+Another interesting paper presented earlier this year is by
+Veit et al~\cite{veit_conditional_2016}. It presents a method of
+capturing semantically different notions of similarity. The main idea
+is that there are types of similarity (color, category, etc.) and
+thus images are embedded into many different subspaces, which capture
+these different types of similarity. Finally, they present a method
+to jointly learn a global embedding, made up of different sub-embeddings
+for the sub-spaces representing different similarities.
+
+This idea could be interesting in the instance search problem, as it
+may allow us to learn different types of categories first and then produce
+an embedding based on these different categories. For instance, a painting
+could be described by its main tone (dark, bright, etc.), its art movement
+(impressionism, dadaism, etc.) or simply its size (big, small, squared,
+wide, high). Each of these notions may be easily described individually
+and a joint learning of these different types of descriptors could provide
+significant improvements over learning a single, global descriptor for
+each image.
