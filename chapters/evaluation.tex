@@ -11,7 +11,32 @@ are paintings for one and glass cabinets containing sculptures and artifacts
 for the other dataset. Both datasets contain a small number of images
 per instance and a small number of images in total.
 Table~\ref{tab:datasets} lists the content and statistics of the datasets
-in detail.
+in detail. In particular, this table shows that the total number of images
+is quite small (order of magnitude of 1000), the number of instances
+is large both in the dataset as well as the test sets (order of magnitude
+of 100), and the median number of images per instance is small
+(2 for GaRoFou, 6 for CLICIDE). This sets both datasets clearly apart
+from the most common datasets used in image retrieval, such as
+Oxford~\cite{philbin_object_2007}, Paris~\cite{philbin_lost_2008}
+as well as Holidays~\cite{jegou_hamming_2008}.
+
+\begin{table}
+\begin{tabular}{|l|l|l|}
+\hline & \emph{CLICIDE} & \emph{GaRoFou}\\
+\hline \emph{Type of objects} & Paintings & Glass cabinets
+containing various objects\\
+\hline \emph{\#Instances} & 464 & 311\\
+\hline \emph{\#Reference images} & 3245 & 1068\\
+\hline \emph{\#Query images (\#instances)} & 165 (134) & 184 (166)\\
+\hline \emph{Median \#images per instance} & 6 & 2\\
+\hline \emph{Min \#images per instance} & 1 & 1\\
+\hline \emph{Max \#images per instance} & 22 & 45\\
+\hline \emph{Total reference images (\#instances)} & 3452 (473) & 1068 (311)\\
+\hline \emph{Total query images (\#instances)} & 177 (143) & 184 (166)\\
+\hline
+\end{tabular}
+\caption{Details of the datasets used for evaluation\label{tab:datasets}}
+\end{table}
 
 \subsection{CLICIDE}
 The CLICIDE dataset contains photographs taken in the Grenoble Museum of Art.
@@ -38,24 +63,6 @@ The full GaRoFou dataset is larger than the part used here: along with
 the dataset of images, it contains a dataset of videos as well as images
 extracted from these videos. The video collection has not been used as
 part of our research.
-
-\begin{table}
-\begin{tabular}{|l|l|l|}
-\hline & \emph{CLICIDE} & \emph{GaRoFou}\\
-\hline \emph{Type of objects} & Paintings & Glass cabinets
-containing various objects\\
-\hline \emph{\#Instances} & 464 & 311\\
-\hline \emph{\#Reference images} & 3245 & 1068\\
-\hline \emph{\#Query images (\#instances)} & 165 (134) & 184 (166)\\
-\hline \emph{Median \#images per instance} & 6 & 2\\
-\hline \emph{Min \#images per instance} & 1 & 1\\
-\hline \emph{Max \#images per instance} & 22 & 45\\
-\hline \emph{Total reference images (\#instances)} & 3452 (473) & 1068 (311)\\
-\hline \emph{Total query images (\#instances)} & 177 (143) & 184 (166)\\
-\hline
-\end{tabular}
-\caption{Details of the datasets used for evaluation\label{tab:datasets}}
-\end{table}
 
 \section{Metrics}
 There are several commonly used metrics in classification and information
@@ -102,10 +109,10 @@ relevant documents there are in the first $k$ retrieved documents.
 
 In instance search, only the first retrieved document is important:
 If the first result is correct, we correctly identify the instance.
-Thus, we are mostly interested in Precision@1 in our research.
+Hence, we are mostly interested in the Precision@1 metric here.
 In order to generalize this metric to all queries, the mean Precision@1
-is used, as defined in Equation~\ref{eq:prec1}. Here, $Q$ represents
-the number of queries.
+is used, as defined in Equation~\ref{eq:prec1}. In this equation,
+$Q$ represents the number of queries.
 
 \subsection{Mean average precision}
 \begin{equation}\label{eq:recall}
@@ -133,25 +140,20 @@ over the Precision@k values at every possible cut-off $k$, multiplied by an
 indicator $rel(RET_k)$, which is 1 if the $k$-th retrieved document is
 relevant. This sum is then normalized by the total number of relevant
 documents for query $q$ $REL_q$.
+Note that in the literature, different definitions of average precision can
+be found. We chose to follow a common definition of this metric, which
+is shared by the Oxford~\cite{philbin_object_2007} and the
+Paris~\cite{philbin_lost_2008} datasets.
 
 Finally, mean average precision $MAP$ represents the mean of all average
 precision values over $Q$ queries, as defined in Equation~\ref{eq:map}.
 
-In instance search, mean average precision is not important as we only
-care about the first ranked result. Nevertheless, it can be an interesting
+In instance search, mean average precision is not as important as in image retrieval,
+since we only care about the first ranked result. Nevertheless, it can be an interesting
 metric to allow better comparison between different systems, so we compute
 the mean average precision for all results along with the mean Precision@1.
 
 \section{Evaluation methodology}\label{sec:evalmethod}
-\begin{equation}\label{eq:dotnorm}
-\begin{array}{l}
-\forall x, y \in \mathbb{R}^n, \|x\|_2 = 1, \|y\|_2 =1 \\
-\| x - y \|_2^2
-= x_1^2 + \dots + x_n^2 + y_1^2 + \dots + y_n^2 - (2x_1y_1 + \dots + 2x_ny_n)
-= 2 - 2xy
-\end{array}
-\end{equation}
-
 Unless explicitly noted, an evaluation of the system is carried out as
 follows:
 
@@ -166,7 +168,7 @@ and the descriptors of reference images.
 
 This is because the cosine similarity between two normalized vectors is
 equal to the dot product between the two vectors, from the definition
-of the cosine similarity. Furthermore, Equation~\ref{eq:dotnorm} shows
+of the cosine similarity. Furthermore, Equation~\ref{eq:sqdistcosdot} shows
 that the dot product is simply inversely proportional to the squared
 euclidean distance between two normalized vectors.
 This means that a high cosine similarity, high value of the dot product
@@ -184,32 +186,14 @@ to compare systems is mean Precision@1, as described in
 Section~\ref{sec:precision}, and the evaluation is carried out as
 described in Section~\ref{sec:evalmethod}.
 
-The descriptors used for comparing images are extracted using different
-methods.
-The SIFT method has been previously evaluated by
-Portaz et al~\cite{portaz_construction_nodate}, where it is detailed.
-
-For the \emph{AlexNet IM} and \emph{ResNet-152 IM} methods,
-an AlexNet and ResNet-152 architecture is pre-trained on the ImageNet dataset.
-Then, the descriptor is simply extracted by passing an image through the
-network and normalizing the output. As ImageNet contains 1000 classes, the
-output has 1000 dimensions. Each image is simply pre-processed by scaling
-it to the expected size of the network at $224 \times 224$.
-
-The \emph{Gordo et al}~\cite{gordo_deep_2016} method is based on the
-pre-trained network published by Gordo et al.
-For this network, images do not need to
-be pre-processed, as the network works with region proposals and thus accepts
-any scale of image. This network outputs a descriptor with 2048 dimensions.
-
 \begin{table}
 \begin{tabular}{|l|c|c|}
 \hline & \emph{CLICIDE} & \emph{GaRoFou}\\
 \hline \emph{SIFT} & 70.08 & 78.82\\
-\hline \emph{AlexNet IM} & 57.58 & 76.63\\
-\hline \emph{ResNet-152 IM} & 64.24 & 75.54\\
-\hline \emph{Gordo et al~\cite{gordo_deep_2016}} & 90.30 & 95.65\\
-\hline \emph{Gordo et al~\cite{gordo_deep_2016} (multi-resolution)}
+\hline \emph{AlexNet IN} & 57.58 & 76.63\\
+\hline \emph{ResNet-152 IN} & 64.24 & 75.54\\
+\hline \emph{Gordo et al}~\cite{gordo_deep_2016} & 90.30 & 95.65\\
+\hline \emph{Gordo et al}~\cite{gordo_deep_2016} (multi-resolution)
 & 92.73 & 95.65\\
 \hline
 \end{tabular}
@@ -218,10 +202,30 @@ The results are expressed in percentage points of
 Mean Precision@1\label{tab:baselines}}
 \end{table}
 
+The descriptors used for comparing images are extracted using different
+methods.
+The SIFT method has been previously evaluated by
+Portaz et al~\cite{portaz_construction_nodate}, where it is detailed.
+
+For the \emph{AlexNet IN} and \emph{ResNet-152 IN} methods,
+an AlexNet and ResNet-152 architecture is pre-trained on the ImageNet dataset.
+Then, the descriptor is simply extracted by passing an image through the
+network and normalizing the output. As ImageNet contains 1000 classes, the
+output has 1000 dimensions. Each image is simply pre-processed by scaling
+it to the expected size of the network at $224 \times 224$.
+
+The method referred to as \emph{Gordo et al}~\cite{gordo_deep_2016}
+is based on the pre-trained network published publicly.
+For this network, images do not need to
+be pre-processed, as the network works with region proposals and thus accepts
+any scale of image. This network outputs a descriptor with 2048 dimensions.
+Finally, the multi-resolution method uses input images with different
+scales of the smaller side.
+
 \section{Performance}
 The performance evaluation is carried out on a typical system used for training CNNs.
-The components approximately represent the highest standard available for a server
-architecture in 2016.
+The components approximately represent the highest standard available for a
+single-GPU server architecture in 2016.
 
 The server contains the following components:
 \begin{enumerate}
@@ -232,18 +236,20 @@ The server contains the following components:
     12 GB memory
 \end{enumerate}
 
-Performance is measured in time in seconds required to execute the task,
+Performance is measured in time in seconds or hours required to execute the task,
 as well as GPU memory required. If multiple sub-tasks are performed for
 a task, the reported performance is simply the accumulation of time and
 the maximum of required GPU memory of the sub-tasks.
 \subsection{Training}
-The training performance is evaluated using the server as described above and the CLICIDE
-dataset as described in Section~\ref{sec:datasets}, containing 3245 images.
+The training performance is evaluated using the server as described above and the
+CLICIDE dataset as described in Section~\ref{sec:datasets}, containing 3245 images.
 
 The training performance was measured only for tasks specific to the dataset,
-as other tasks can be performed a single time upfront. In particular, this means
-that pre-training a network on a dataset which is not specific to our task is
-counted as utilizing no time or memory.
+as other tasks can be performed once upfront for any dataset and parameter
+weights can be transferred in a negligible amount of time. In particular, this means
+that pre-training a network on a dataset not specific to our task is
+counted as using no time or memory.
+
 \subsection{Testing}
 The testing performance is evaluated using the server as described above and
 the validation dataset of CLICIDE, as described in Section~\ref{sec:datasets}.
