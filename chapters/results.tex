@@ -96,7 +96,8 @@ as various other approaches.
 \end{tabular}
 \caption{Evaluation results for the CLICIDE and GaRoFou datasets.
 The results are expressed in percentage points of
-Mean Precision@1\label{tab:results}}
+Mean Precision@1 and mean average precision (only indicative)
+\label{tab:results}}
 \end{table}
 
 Table~\ref{tab:results} gives an overview of the results obtained. First,
@@ -215,5 +216,25 @@ instead of having as many reference descriptors as
 reference images, it leaves only as many reference
 descriptors as there are instances in the dataset.
 
-Table~\ref{TODO} shows the results obtained
-using this additional technique. % TODO
+\begin{table}
+\begin{tabular}{|l|c|c|c|c|}
+\hline & \multicolumn{2}{c|}{\emph{Mean Precision@1}} &
+\multicolumn{2}{c|}{\emph{Mean Average Precision}}\\
+\hline & \emph{CLICIDE} & \emph{GaRoFou} & \emph{CLICIDE} & \emph{GaRoFou}\\
+\hline \emph{Gordo et al~\cite{gordo_deep_2016} (multi-resolution)}
+& 92.73 & 95.65 & 0 & 0\\
+\hline \emph{Proposed AlexNet} & 0 & 0 & 0 & 0\\ % TODO !
+\hline \emph{Proposed AlexNet (instance-averaging)} & 0 & 0 & 0 & 0\\ % TODO !
+\hline \emph{Proposed ResNet-152} & 0 & 0 & 0 & 0\\
+\hline \emph{Proposed ResNet-152 (instance-averaging)} & 0 & 0 & 0 & 0\\
+\hline
+\end{tabular}
+\caption{Evaluation results for the CLICIDE and GaRoFou datasets,
+with and without instance-averaging.
+The results are expressed in percentage points of
+Mean Precision@1 and mean average precision (only indicative)
+\label{tab:instanceavg}}
+\end{table}
+
+Table~\ref{tab:instanceavg} shows the results obtained
+using the instance-averaging technique. % TODO
