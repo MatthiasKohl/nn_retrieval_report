@@ -5,13 +5,236 @@ In this section, we present the experimental results obtained in our
 research.
 
 \section{Performance}\label{sec:perfresults}
+Table~\ref{tab:perftrain} shows the performance of various approaches
+when training on the CLICIDE dataset. We assume that pre-trained
+networks have 0 cost. This table shows that fine-tuning a network
+on classification on the new dataset is quite fast and has a low memory
+footprint. This is interesting since fine-tuning already achieves better
+results than many standard approaches, as can be seen in
+Section~\ref{sec:evalresults}.
+We can also see that training our proposed architecture is much
+more costly, although the absolute cost is not excessive:
+around 48h (TODO) of training time in total for the very deep ResNet-152.
 
+Table~\ref{tab:perftest} shows the performance of these approaches
+when evaluating them on a single image. We can see that all approaches
+have approximately the same performance, with % TODO.
 
-\section{Fine-tuned filters}
-First, we present the results obtained by fine-tuning filters.
-% TODO images showing saliency map/feature map of filter before and after
-% fine-tuning
+\begin{table}
+\begin{tabular}{|l|c|c|}
+\hline & \multicolumn{2}{c|}{\emph{CLICIDE training}}\\
+\hline & Time (h) & GPU memory (MB)\\
+\hline \emph{AlexNet IN} & 0 & 0\\
+\hline \emph{ResNet-152 IN} & 0 & 0\\
+\hline \emph{Gordo et al~\cite{gordo_deep_2016}} & 0 & 0\\
+\hline \emph{Gordo et al~\cite{gordo_deep_2016} (multi-resolution)}
+& 0 & 0\\
+\hline \emph{AlexNet FT} & 0 & 0\\ % TODO !
+\hline \emph{ResNet-152 FT} & 0 & 0\\
+\hline \emph{Proposed AlexNet} & 0 & 0\\ % TODO !
+\hline \emph{Proposed ResNet-152} & 0 & 0\\
+\hline
+\end{tabular}
+\caption{Performance of different approaches in terms of time in seconds and
+maximal GPU memory usage in MB when training on the CLICIDE dataset
+\label{tab:perftrain}}
+\end{table}
 
-\section{Evaluation results}
+\begin{table}
+\begin{tabular}{|l|c|c|}
+\hline & \multicolumn{2}{c|}{\emph{CLICIDE test per image}}\\
+\hline & Time (h) & GPU memory (MB)\\
+\hline \emph{AlexNet IN} & 0 & 0\\ % TODO !
+\hline \emph{ResNet-152 IN} & 0 & 0\\
+\hline \emph{Gordo et al~\cite{gordo_deep_2016}} & 0 & 0\\
+\hline \emph{Gordo et al~\cite{gordo_deep_2016} (multi-resolution)}
+& 0 & 0\\
+\hline \emph{AlexNet FT} & 0 & 0\\ % TODO !
+\hline \emph{ResNet-152 FT} & 0 & 0\\
+\hline \emph{Proposed AlexNet} & 0 & 0\\ % TODO !
+\hline \emph{Proposed ResNet-152} & 0 & 0\\
+\hline
+\end{tabular}
+\caption{Performance of different approaches in terms of time in seconds and
+maximal GPU memory usage in MB when testing on a single image
+of the CLICIDE dataset\label{tab:perftest}}
+\end{table}
+
+Note that the performance reported for testing is not relevant in absolute numbers,
+since it was established on a high-end server, usually unavailable when testing
+a system. However, the results are relevant in relative terms when comparing
+different systems.
+
+% TODO talk about results, what we see etc
+% TODO make test on empty decore0 server with one Titan X (possibly extrapolate from 5 epochs or so)
+
+% TODO make test on empty decore0 server with one Titan X
+% TODO talk about some performance metrics (how much time to train, to evaluate, depending on network. what hardware was used)
+
+\section{Evaluation results}\label{sec:evalresults}
 In this section, we present the results obtained on the presented datasets
-as described in chapter~\ref{sec:evaluation}.
+using our network as described in Section~\ref{sec:proposed}, as well
+as various other approaches.
+
+\begin{table}
+\begin{tabular}{|l|c|c|c|c|}
+\hline & \multicolumn{2}{c|}{\emph{Mean Precision@1}} &
+\multicolumn{2}{c|}{\emph{Mean Average Precision}}\\
+\hline & \emph{CLICIDE} & \emph{GaRoFou} & \emph{CLICIDE} & \emph{GaRoFou}\\
+\hline \emph{SIFT} & 70.08 & 78.82 & N/A & N/A\\
+\hline \emph{AlexNet IN} & 57.58 & 76.63 & 0 & 0\\
+\hline \emph{ResNet-152 IN} & 64.24 & 75.54 & 0 & 0\\
+\hline \emph{Gordo et al~\cite{gordo_deep_2016}}
+& 90.30 & 95.65 & 0 & 0\\
+\hline \emph{Gordo et al~\cite{gordo_deep_2016} (multi-resolution)}
+& 92.73 & 95.65 & 0 & 0\\
+\hline \emph{AlexNet FT} & 0 & 0 & 0 & 0\\ % TODO !
+\hline \emph{ResNet-152 FT} & 0 & 0 & 0 & 0\\
+\hline \emph{Proposed AlexNet} & 0 & 0 & 0 & 0\\ % TODO !
+\hline \emph{Proposed ResNet-152} & 0 & 0 & 0 & 0\\
+\hline
+\end{tabular}
+\caption{Evaluation results for the CLICIDE and GaRoFou datasets.
+The results are expressed in percentage points of
+Mean Precision@1 and mean average precision (only indicative)
+\label{tab:results}}
+\end{table}
+
+Table~\ref{tab:results} gives an overview of the results obtained. First,
+the baselines established in Section~\ref{sec:baselines} are shown
+again, with the addition of the relevant results obtained by fine-tuning
+a classification network (Section~\ref{sec:finetuning}) and our
+proposed network (Section~\ref{sec:proposed}).
+In addition to the mean precision@1, we show the mean average
+precision obtained by the different approaches.
+
+% TODO  possibly remove this
+The comparison of performance between different descriptors should
+be based on the mean precision@1. However, the mean average
+precision is indicative of how well the model
+captures the pattern or characteristics which defines an instance or
+sets it apart from other instances. In particular, it is possible to obtain
+a high mean precision@1 while achieving a low mean average precision
+if the descriptor describes visual similarity well enough. This is because
+there is usually at least one reference image that is visually similar
+to the query. However, in order to achieve a high mean average precision,
+the descriptor needs to capture the specific characteristics of the
+instance that set it apart from other instances. For these reasons,
+we show the mean average precision obtained by the different
+descriptors along with the mean precision@1.
+
+\section{Additional improvements}
+In the evaluation results shown above, we consider each approach
+as if it provides a strong descriptor for each image, and we only
+evaluate the performance of this descriptor.
+In information retrieval, many approaches combine descriptors,
+or use augmentation techniques in order to improve the results
+provided by a single descriptor.
+
+The following sections quickly describe these approaches and
+justify whether or not they may improve the results obtained
+here.
+
+\subsection{Combination of descriptors}
+Many approaches in information retrieval combine multiple
+descriptors in order to achieve better results. One of the
+major motivations for our research is precisely to avoid
+this combination by using an end-to-end approach based
+on optimizing a single descriptor globally. On the other hand,
+combining descriptors always optimizes the individual descriptors
+for a specific task and only later combines them for more
+abstract or difficult task. Since we want to avoid choosing
+many different descriptors to combine, we do not explore
+this approach.
+
+\subsection{Query expansion}
+Gordo et al~\cite{gordo_end--end_2016} use an approach
+named query expansion to achieve better results. This
+approach essentially performs multiple queries: first, the
+descriptor of a query image is used as-is. Then, the descriptor
+is combined with the descriptors of the top $k$ retrieved
+results, by simply adding the descriptors together. This new
+descriptor is used to perform a second query, which gives
+the final result.
+
+This technique was introduced by
+Chum et al~\cite{chum_total_2007} and is especially useful
+when the descriptor of the query can be spatially matched
+against the returned descriptors. This eliminates some of the
+returned descriptors from the combined descriptor used
+to perform a second query. However, as CNNs produce
+global descriptors of images, this spatial matching cannot
+be performed.
+
+Furthermore, we do not expect query expansion to provide
+any major improvements in our research problem, since
+we expect to have very few images returned. This means
+the only plausible value of $k$ would be $k=1$. However,
+if the best matching descriptor of the first query already
+matched, the second query cannot improve the result
+and if it does not match, it is unlikely that the second
+query would match. Overall, query expansion may
+improve mean average precision, but it is unlikely to
+improve mean precision@1.
+
+\subsection{Database-side feature augmentation}
+Gordo et al~\cite{gordo_end--end_2016} use another
+approach to improve results. This approach is introduced
+by Turcot et al~\cite{turcot_better_2009} and
+Arandjelovic et al~\cite{arandjelovic_three_2012}.
+
+The idea is to combine the descriptors of the reference
+images in order to form better database-side descriptors.
+Every reference descriptor is simply replaced by a
+combination of itself and the $k$ nearest neighbors.
+This combination is computed as a weighted sum, weighted
+by the rank of the neighbors with respect to $k$ (the
+closest neighbor has the highest weight and the $k$-th
+neighbor the lowest).
+The neighbors can be pre-computed once all descriptors
+have been computed for the reference images, by comparing
+each image to all others. This can be done efficiently
+in our case where descriptors can be compared to other
+descriptors using a matrix multiplication.
+
+However, it is difficult to choose the value for $k$, as
+it should be low enough to not include many irrelevant
+images for the descriptors, but high enough for the
+technique to have an impact at all.
+
+\subsection{Instance-averaging}
+Since we have the labels of the reference images
+available, we propose an approach similar to
+database-side feature augmentation in order to
+improve the results: for each instance, the descriptors
+of all images representing this instance are combined
+by averaging the individual descriptors representing
+that instance, then normalizing again.
+
+This reduces the number of reference descriptors:
+instead of having as many reference descriptors as
+reference images, it leaves only as many reference
+descriptors as there are instances in the dataset.
+
+\begin{table}
+\begin{tabular}{|l|c|c|c|c|}
+\hline & \multicolumn{2}{c|}{\emph{Mean Precision@1}} &
+\multicolumn{2}{c|}{\emph{Mean Average Precision}}\\
+\hline & \emph{CLICIDE} & \emph{GaRoFou} & \emph{CLICIDE} & \emph{GaRoFou}\\
+\hline \emph{Gordo et al~\cite{gordo_deep_2016} (multi-resolution)}
+& 92.73 & 95.65 & 0 & 0\\
+\hline \emph{Proposed AlexNet} & 0 & 0 & 0 & 0\\ % TODO !
+\hline \emph{Proposed AlexNet (instance-averaging)} & 0 & 0 & 0 & 0\\ % TODO !
+\hline \emph{Proposed ResNet-152} & 0 & 0 & 0 & 0\\
+\hline \emph{Proposed ResNet-152 (instance-averaging)} & 0 & 0 & 0 & 0\\
+\hline
+\end{tabular}
+\caption{Evaluation results for the CLICIDE and GaRoFou datasets,
+with and without instance-averaging.
+The results are expressed in percentage points of
+Mean Precision@1 and mean average precision (only indicative)
+\label{tab:instanceavg}}
+\end{table}
+
+Table~\ref{tab:instanceavg} shows the results obtained
+using the instance-averaging technique. % TODO
