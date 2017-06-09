@@ -22,7 +22,7 @@ instance and $0$ otherwise, and $\hat{y}_i$ is the predicted probability
 that sample $i$ belongs to the given instance.
 
 Fine-tuning a CNN for classification on different data has been studied
-intensively by Yosinki et al~\cite{yosinski_how_2014}. In particular,
+intensively by Yosinki et al.~\cite{yosinski_how_2014}. In particular,
 their study shows that it is only important to fine-tune the neurons
 of higher layers of a CNN. Furthermore, they show that
 fine-tuning can increase generalization even in the fine-tuned model.
@@ -77,7 +77,7 @@ third to last block of convolutional layers. This contains the
 nine highest convolutional layers in total.
 
 \section{Simplified Siamese architecture}\label{sec:simplifiedsiam}
-We follow the methodology of Gordo et al~\cite{gordo_deep_2016} and
+We follow the methodology of Gordo et al.~\cite{gordo_deep_2016} and
 propose a simplified Siamese architecture. As shown in
 Figure~\ref{fig:gordo_train}, the previous state-of-the-art is set
 by a Siamese architecture using the triplet loss.
@@ -136,7 +136,7 @@ obtain convergence. In particular, many triplets are irrelevant
 and do not produce any loss since they are \emph{too easy} for the network.
 
 Hence, the first idea is to choose the hardest triplets, as proposed by
-Schroff et al~\cite{schroff_facenet:_2015}. However, as they show in
+Schroff et al.~\cite{schroff_facenet:_2015}. However, as they show in
 their paper, this can lead to a collapsing model early on in training
 so they choose  \emph{semi-hard} triplets instead. Semi-hard triplets
 are obtained as follows:
@@ -150,7 +150,7 @@ instances represents a hard negative couple.
 The value of all dot-products are determined before each pass over
 the whole training data during training, for all couples of images.
 
-Gordo et al~\cite{gordo_end--end_2016} propose a more complex mechanism.
+Gordo et al.~\cite{gordo_end--end_2016} propose a more complex mechanism.
 First, they also calculate the values of dot-products for all couples of
 images before each pass over the training data.
 Second, for each image, choose the $n$ easiest positive images and the
@@ -357,7 +357,7 @@ Average precision Gordo's net: 0.004, fine-tuned ResNet-152: 0.004
 \end{subfigure}
 \caption{Sample images that were correctly and incorrectly identified
 by a fine-tuned ResNet-152, as well as the network published by Gordo
-et al~\cite{gordo_deep_2016}, referred to as Gordo's net. For each image,
+et al.~\cite{gordo_deep_2016}, referred to as Gordo's net. For each image,
 the query image is shown at the very left and all possible correct reference
 images are shown to the right of the query. The caption contains the
 associated average precision values.
@@ -367,7 +367,7 @@ associated average precision values.
 Figure~\ref{fig:incorrectimg}
 shows typical images that were correctly identified versus images that
 were incorrectly identified, by a fine-tuned network as well as the network
-published by Gordo et al~\cite{gordo_deep_2016}, along with the average
+published by Gordo et al.~\cite{gordo_deep_2016}, along with the average
 precision for the respective queries.
 
 From these results, we see that the networks struggle with images at
@@ -391,7 +391,7 @@ Additionally, it seems like scale is a particularly important factor.
 Thus, the idea is to start by fine-tuning a network with images
 at different scales. This can be achieved by using a fully
 convolutional network (FCN), as introduced by
-Long et al~\cite{long_fully_2015}.
+Long et al.~\cite{long_fully_2015}.
 
 In a FCN, the final fully connected layers
 of a network are replaced by convolutional layers having a kernel
@@ -458,7 +458,7 @@ in stochastic gradient descent.
 
 However, using a micro-batch formed of a single image represents an issue
 with the ResNet architecture: this model uses batch-norm layers, introduced
-by Ioffe et al~\cite{ioffe_batch_2015}. When training a model, the layer
+by Ioffe et al.~\cite{ioffe_batch_2015}. When training a model, the layer
 normalizes each batch by its mean and variance. However, it keeps a running
 mean and variance, which approximates the true mean and variance of the
 dataset and which is applied during testing. With a micro-batch size
@@ -485,7 +485,7 @@ FCN as described above.
 \caption{Proposed architecture for instance search, based on a FCN
 ~\cite{long_fully_2015} for region proposals. The descriptor extraction
 for each region is similar to the architecture by
-Gordo et al~\cite{gordo_deep_2016}, as shown in
+Gordo et al.~\cite{gordo_deep_2016}, as shown in
 Figures~\ref{fig:gordo_deploy}~and~\ref{fig:gordo_train}
 \label{fig:contrib}}
 \end{figure}
@@ -501,7 +501,7 @@ We only consider the maximal activation at all locations.
 The locations with the top $k$ maximal activations will form the descriptor.
 
 For each of these locations, we closely follow the architecture
-proposed by Gordo et al~\cite{gordo_deep_2016}, as shown in
+proposed by Gordo et al.~\cite{gordo_deep_2016}, as shown in
 Figure~\ref{fig:gordo_deploy}. The convolutional features are
 reduced by a $\|\cdot\|_2$-normalization, then a shifting and fully connected
 layer. Finally, all descriptors from the $k$ locations are
@@ -542,7 +542,7 @@ are best suited for comparison with other images.
 Another advantage is that this approach does not require
 any annotation of the images with regions of interest,
 which can be a long, manual or automatic process, as evident
-from the cleaning process used by Gordo et al~\cite{gordo_end--end_2016}.
+from the cleaning process used by Gordo et al.~\cite{gordo_end--end_2016}.
 
 Finally, an important property of the descriptor is that it
 heavily relies on the classification

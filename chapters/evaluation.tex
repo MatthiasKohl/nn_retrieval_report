@@ -4,7 +4,7 @@
 \section{Datasets}\label{sec:datasets}
 The proposed approaches as well as several base-lines are evaluated
 on two datasets: the CLICIDE and GaRoFou datasets. These datasets are
-described in detail by Portaz et al~\cite{portaz_construction_nodate}.
+described in detail by Portaz et al.~\cite{portaz_construction_nodate}.
 Both datasets are typical of instance search datasets
 in museums or touristic sites: the objects represented by their images
 are paintings for one and glass cabinets containing sculptures and artifacts
@@ -192,8 +192,8 @@ described in Section~\ref{sec:evalmethod}.
 \hline \emph{SIFT} & 70.08 & 78.82\\
 \hline \emph{AlexNet IN} & 57.58 & 76.63\\
 \hline \emph{ResNet-152 IN} & 64.24 & 75.54\\
-\hline \emph{Gordo et al}~\cite{gordo_deep_2016} & 90.30 & 95.65\\
-\hline \emph{Gordo et al}~\cite{gordo_deep_2016} (multi-resolution)
+\hline \emph{Gordo et al.}~\cite{gordo_deep_2016} & 90.30 & 95.65\\
+\hline \emph{Gordo et al.}~\cite{gordo_deep_2016} (multi-resolution)
 & 92.73 & 95.65\\
 \hline
 \end{tabular}
@@ -205,7 +205,7 @@ Mean Precision@1\label{tab:baselines}}
 The descriptors used for comparing images are extracted using different
 methods.
 The SIFT method has been previously evaluated by
-Portaz et al~\cite{portaz_construction_nodate}, where it is detailed.
+Portaz et al.~\cite{portaz_construction_nodate}, where it is detailed.
 
 For the \emph{AlexNet IN} and \emph{ResNet-152 IN} methods,
 an AlexNet and ResNet-152 architecture is pre-trained on the ImageNet dataset.
@@ -214,7 +214,7 @@ network and normalizing the output. As ImageNet contains 1000 classes, the
 output has 1000 dimensions. Each image is simply pre-processed by scaling
 it to the expected size of the network at $224 \times 224$.
 
-The method referred to as \emph{Gordo et al}~\cite{gordo_deep_2016}
+The method referred to as \emph{Gordo et al.}~\cite{gordo_deep_2016}
 is based on the pre-trained network published publicly.
 For this network, images do not need to
 be pre-processed, as the network works with region proposals and thus accepts
