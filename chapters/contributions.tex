@@ -165,10 +165,10 @@ Hence, in our experiments, we choose the semi-hard triplet selection
 for the first two passes over the dataset, after which we only choose
 the hardest negatives for all positive couples.
 
-\section{Analysis of previous approaches}\label{sec:analysisprev}
+\section{Region of interests and object localization}\label{sec:analysisprev}
 \subsection{Identifying regions of interest}\label{sec:roi}
-Previous approaches in image retrieval~\cite{gordo_end--end_2016}
-~\cite{salvador_faster_2016}~\cite{tolias_particular_2015}
+Previous approaches in image retrieval
+~\cite{gordo_end--end_2016,salvador_faster_2016,tolias_particular_2015}
 usually deal with regions of interest in one way or another.
 The idea is that in most cases, only certain parts of each image can
 be useful for comparison with other images. In addition to this,
@@ -269,8 +269,7 @@ for a procedure to annotate regions of interest, as employed by most
 image retrieval approaches. % TODO
 
 On the other hand, using datasets developed for image retrieval,
-such as Paris6k~\cite{philbin_lost_2008} or
-Oxford5k~\cite{philbin_object_2007},
+such as Paris6k or Oxford5k~\cite{philbin_lost_2008,philbin_object_2007},
 this assumption cannot be applied, since the dataset is not clean
 enough for a fine-tuned network to be a good indicator of location of
 the query objects.
@@ -371,6 +370,7 @@ precision for the respective queries.
 From these results, we see that the networks struggle with images at
 very different scales, achieving very low average precision,
 while images with similar scales are usually perfectly matched.
+
 % TODO more detail
 Combining both of the properties identified in this section, we
 propose a novel approach to learn a strong descriptor for instance
