@@ -613,14 +613,14 @@ improve mean average precision, but it is unlikely to
 improve mean precision@1.
 
 \subsection{Database-side feature augmentation}
-Gordo et al.~\cite{gordo_end--end_2016} use another
-approach to improve results. This approach is introduced
+Another common approach to improve the performance of descriptors
+in image retrieval was introduced
 by Turcot et al.~\cite{turcot_better_2009} and
 Arandjelovic et al.~\cite{arandjelovic_three_2012}.
 
 The idea is to combine the descriptors of the reference
-images in order to form better database-side descriptors.
-Every reference descriptor is simply replaced by a
+images in order to form more robust database-side descriptors.
+Every reference descriptor is replaced by a
 combination of itself and the $k$ nearest neighbors.
 This combination is computed as a weighted sum, weighted
 by the rank of the neighbors with respect to $k$ (the
@@ -641,10 +641,8 @@ technique to have an impact at all.
 Since we have the labels of the reference images
 available, we propose an approach similar to
 database-side feature augmentation in order to
-improve the results: for each instance, the descriptors
-of all images representing this instance are combined
-by averaging the individual descriptors representing
-that instance, then normalizing again.
+improve the results: each descriptor is replaced by a
+combination of itself with all the descriptors
 
 This reduces the number of reference descriptors:
 instead of having as many reference descriptors as
