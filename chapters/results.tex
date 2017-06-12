@@ -91,12 +91,10 @@ as various other approaches.
 \multicolumn{2}{c|}{\emph{Mean Average Precision}}\\
 \hline & \emph{CLICIDE} & \emph{GaRoFou} & \emph{CLICIDE} & \emph{GaRoFou}\\
 \hline \emph{SIFT} & 70.08 & 78.82 & N/A & N/A\\
-\hline \emph{AlexNet IN} & 57.58 & 76.63 & 0 & 0\\
-\hline \emph{ResNet-152 IN} & 64.24 & 75.54 & 0 & 0\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016}}
 & 90.30 & 95.65 & 65.49 & 88.43\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (multi-resolution)}
-& 92.73 & 95.65 & 0 & 89.32\\
+& 92.73 & 95.65 & 70.36 & 89.32\\
 \hline \emph{AlexNet IN} & 72.73 & 85.87 & 32.71 & 66.11\\
 \hline \emph{AlexNet FT} & 78.18 & 90.76 & 38.51 & 72.92\\
 \hline \emph{AlexNet SS} & 75.76 & 90.20 & 36.20 & 77.73\\
@@ -208,3 +206,11 @@ by Gordo et al. is trained on the much much larger Landmarks dataset
 As shown in Sections~\ref{sec:tripletselection}~and~\ref{sec:roi},
 the training methodology developed by Gordo et al. is not applicable
 to a small, clean dataset, such as the ones used in our evaluation.
+
+A surprising result is the result given by instance feature augmentation as
+described in Section~\ref{sec:ifa}. While the mean average precision is
+greater than the mean average precision of the proposed network by a large
+margin, the mean precision@1 is slightly lower. This may show that the
+proposed network matched some outliers correctly, while the descriptors
+produced by instance feature augmentation are more robust overall.
+However, we do not have a more detailed explanation of this result as of now.
