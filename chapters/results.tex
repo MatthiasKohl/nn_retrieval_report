@@ -5,20 +5,6 @@ In this section, we present the experimental results obtained in our
 research.
 
 \section{Performance}\label{sec:perfresults}
-Table~\ref{tab:perftrain} shows the performance of various approaches
-when training on the CLICIDE dataset. We assume that pre-trained
-networks have 0 cost. This table shows that fine-tuning a network
-on classification on the new dataset is quite fast and has a low memory
-footprint. This is interesting since fine-tuning already achieves better
-results than many standard approaches, as can be seen in
-Section~\ref{sec:evalresults}.
-We can also see that training our proposed architecture is much
-more costly, although the absolute cost is not excessive:
-around 48h (TODO) of training time in total for the very deep ResNet-152.
-
-Table~\ref{tab:perftest} shows the performance of these approaches
-when evaluating them on a single image. We can see that all approaches
-have approximately the same performance, with % TODO.
 
 \begin{table}
 \begin{tabular}{|l|c|c|}
@@ -31,8 +17,8 @@ have approximately the same performance, with % TODO.
 & 0 & 0\\
 \hline \emph{AlexNet FT} & 1.429 & 1706\\
 \hline \emph{ResNet-152 FT} & 1.621 & 6910\\
-\hline \emph{Proposed AlexNet} & 38.24 & 1956\\
-\hline \emph{Proposed ResNet-152} & 71.92 & 10494\\
+\hline \emph{Proposed AlexNet} & 49.06 & 1956\\
+\hline \emph{Proposed ResNet-152} & 86.62 & 10494\\
 \hline
 \end{tabular}
 \caption{Performance of different approaches in terms of time in seconds and
@@ -40,15 +26,27 @@ maximal GPU memory usage in MB when training on the CLICIDE dataset
 \label{tab:perftrain}}
 \end{table}
 
+Table~\ref{tab:perftrain} shows the performance of various approaches
+when training on the CLICIDE dataset. We assume that pre-trained
+networks have 0 cost. This table shows that fine-tuning a network
+on classification on the new dataset is quite fast and has a low memory
+footprint. This is interesting since fine-tuning already achieves better
+results than many standard approaches, as can be seen in
+Section~\ref{sec:evalresults}.
+We can also see that training our proposed architecture is much
+more costly, although the absolute cost is not excessive:
+around 86h of training time in total for the very deep ResNet-152
+and 49h for AlexNet, using our larger dataset with over 3000 images.
+
 \begin{table}
 \begin{tabular}{|l|c|c|}
 \hline & \multicolumn{2}{c|}{\emph{CLICIDE test per image}}\\
 \hline & Time (ms) & GPU memory (MiB)\\
-\hline \emph{AlexNet IN} & 0 & 0\\ % TODO !
-\hline \emph{ResNet-152 IN} & 0 & 0\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016}} & 0 & 0\\
+\hline \emph{AlexNet IN} & 1.14 & 850\\
+\hline \emph{ResNet-152 IN} & 23.9 & 972\\
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016}} & 200 & N/A\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (multi-resolution)}
-& 0 & 0\\
+& 900 & N/A\\
 \hline \emph{AlexNet FT} & 4.6 & 1012\\
 \hline \emph{ResNet-152 FT} & 26.1 & 944\\
 \hline \emph{Proposed AlexNet} & 12.3 & 1116\\
@@ -60,16 +58,27 @@ maximal GPU memory usage in MB when testing on a single image
 of the CLICIDE dataset\label{tab:perftest}}
 \end{table}
 
-Note that the performance reported for testing is not relevant in absolute numbers,
-since it was established on a high-end server, usually unavailable when testing
-a system. However, the results are relevant in relative terms when comparing
-different systems.
+Table~\ref{tab:perftest} shows the performance of the different networks
+when evaluating on a single image. For the baseline based on SIFT, no performance measures were available.
+For the Gordo et al.~\cite{gordo_deep_2016} baseline, we simply took the
+measurements from their paper, performed on a slightly different system,
+as we only have a slower version of the model available, which does not
+evaluate the entire system on GPU, and is thus about 10 times slower.
 
-% TODO talk about results, what we see etc
-% TODO make test on empty decore0 server with one Titan X (possibly extrapolate from 5 epochs or so)
+We can see from Table~\ref{tab:perftest} that all networks
+of the same architecture have approximately the same performance, with
+the proposed architecture being 2-3 times slower than a network
+fine-tuned on classification. However, compared to the best performing
+network proposed by Gordo et al.~\cite{gordo_deep_2016}, the proposed AlexNet
+is two orders of magnitude faster and the proposed ResNet152 is one
+order of magnitude faster.
 
-% TODO make test on empty decore0 server with one Titan X
-% TODO talk about some performance metrics (how much time to train, to evaluate, depending on network. what hardware was used)
+This means that the proposed AlexNet architecture can be evaluated in
+real-time and the proposed ResNet152 almost in real-time on a suitable
+server.
+Note that this real-time performance may not be possible with the current
+state-of-the-art in mobile computing, but it may be an indication of
+what will be possible in future mobile platforms.
 
 \section{Evaluation results}\label{sec:evalresults}
 In this section, we present the results obtained on the presented datasets
@@ -77,23 +86,27 @@ using our network as described in Section~\ref{sec:proposed}, as well
 as various other approaches.
 
 \begin{table}
-\begin{tabular}{|l|c|c|c|c|}
-\hline & \multicolumn{2}{c|}{\emph{Mean Precision@1}} &
+\begin{tabular}{|l|c|c||c|c|}
+\hline & \multicolumn{2}{c||}{\emph{Mean Precision@1}} &
 \multicolumn{2}{c|}{\emph{Mean Average Precision}}\\
 \hline & \emph{CLICIDE} & \emph{GaRoFou} & \emph{CLICIDE} & \emph{GaRoFou}\\
 \hline \emph{SIFT} & 70.08 & 78.82 & N/A & N/A\\
-\hline \emph{AlexNet IN} & 57.58 & 76.63 & 0 & 0\\
-\hline \emph{ResNet-152 IN} & 64.24 & 75.54 & 0 & 0\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016}}
-& 90.30 & 95.65 & 0 & 0\\
+& 90.30 & 95.65 & 65.49 & 88.43\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (multi-resolution)}
-& 92.73 & 95.65 & 0 & 0\\
-\hline \emph{AlexNet FT} & 0 & 0 & 0 & 0\\ % TODO !
-\hline \emph{ResNet-152 FT} & 0 & 0 & 0 & 0\\
-\hline \emph{Proposed AlexNet} & 81.21 & 83.15 & 45.53 & 71.71\\ % TODO !
-\hline \emph{Proposed ResNet-152} & 94.55 & 96.20 & 82.94 & 91.83\\
-\hline \emph{Proposed AlexNet (IFA)} & 80.61 & 82.61 & 71.02 & 81.66\\ % TODO !
-\hline \emph{Proposed ResNet-152 (IFA)} & 93.94 & 95.11 & 94.23 & 93.86\\
+& 92.73 & 95.65 & 0 & 89.32\\
+\hline \emph{AlexNet IN} & 72.73 & 85.87 & 32.71 & 66.11\\
+\hline \emph{AlexNet FT} & 78.18 & 90.76 & 38.51 & 72.92\\
+\hline \emph{AlexNet SS} & 75.76 & 90.20 & 36.20 & 77.73\\
+\hline \emph{Proposed AlexNet} & 81.21 & 83.15 & 45.53 & 71.71\\
+\hline \emph{Proposed AlexNet (IFA)} & 80.61 & 82.61 & 71.02 & 81.66\\
+\hline \emph{ResNet-152 IN} & 72.12 & 85.33 & 40.99 & 70.15\\
+\hline \emph{ResNet-152 FT} & 79.39 & 94.57 & 75.11 & 93.44\\
+\hline \emph{ResNet-152 SS} & 85.45 & 95.11 & 83.00 & 91.90\\
+\hline \emph{Proposed ResNet-152} & \textbf{94.55} & \textbf{96.20}
+& 82.94 & 91.83\\
+\hline \emph{Proposed ResNet-152 (IFA)} & 93.94 & 95.11
+& \textbf{94.23} & \textbf{93.86}\\
 \hline
 \end{tabular}
 \caption{Evaluation results for the CLICIDE and GaRoFou datasets.
@@ -104,15 +117,25 @@ Mean Precision@1 and mean average precision (only indicative)
 
 Table~\ref{tab:results} gives an overview of the results obtained. First,
 the baselines established in Section~\ref{sec:baselines} are shown
-again, with the addition of the relevant results obtained by fine-tuning
-a classification network (Section~\ref{sec:finetuning}) and our
-proposed network (Section~\ref{sec:proposed}).
+again. Additionally, we show the relevant results obtained by fine-tuning
+a classification network, abbreviated by FT in the table. This method
+is described in Section~\ref{sec:finetuning}. We then show the results
+obtained by a simplified Siamese architecture, as described in Section
+~\ref{sec:simplifiedsiam}, abbreviated SS. Finally, we show the results
+obtained by the proposed network as described in Section~\ref{sec:proposed}.
 In addition to the mean precision@1, we show the mean average
 precision obtained by the different approaches.
+
+In Table~\ref{tab:results}, all descriptors have dimension 2048, except
+for the AlexNet IN and AlexNet FT methods. As described in
+Section~\ref{sec:baselines}, these descriptors have dimension 9216,
+since they consist of the convolutional features of an
+AlexNet architecture.
 
 In Table~\ref{tab:results}, \emph{IFA} refers to the results obtained
 using instance feature augmentation, as presented in Section~\ref{sec:ifa}.
 
+\subsection{Interpretation}
 % TODO  possibly remove this
 The comparison of performance between different descriptors should
 be based on the mean precision@1. However, the mean average
@@ -127,3 +150,59 @@ the descriptor needs to capture the specific characteristics of the
 instance that set it apart from other instances. For these reasons,
 we show the mean average precision obtained by the different
 descriptors along with the mean precision@1.
+
+From the baselines presented in Section~\ref{sec:baselines}, we can make
+two observations. First, even a simple global descriptor obtained from the
+convolutional features of a CNN pre-trained on ImageNet performs better
+than matching local SIFT descriptors on our datasets. Second, the network
+proposed by Gordo et al.~\cite{gordo_deep_2016} out-performs the descriptors
+from pre-trained networks by far, even though it has never seen the images
+from our datasets during training, either.
+
+Table~\ref{tab:results} confirms these observations when taking into
+account the mean average precision of the network proposed Gordo et al.
+and the convolutional features of networks pre-trained on ImageNet.
+The difference is striking, with more than 10 points gained in mean
+average precision even when comparing against the ResNet architecture.
+This means that the network proposed by Gordo et al. captures the
+visual information much better than just the convolutional features
+of a pre-trained network. This is expected, since that was one of the
+goals of the approach proposed by Gordo et al.~\cite{gordo_deep_2016}.
+
+Another observation we can make from Table~\ref{tab:results} is that
+fine-tuning a network on the reference dataset consistently out-performs
+a pre-trained network. Furthermore, the training cost of fine-tuning is
+very low, as can be seen from Table~\ref{tab:perftrain}, and the testing
+costs are equivalent, since the exact same architecture can be used.
+This shows that transfer learning is very powerful for small datasets with
+many classes. Indeed, networks with many parameters such as AlexNet and
+ResNet could not have been trained on such small datasets with
+uninitialized weights.
+
+However, when comparing the classification fine-tuning method with the
+simplified Siamese architecture (fine-tuning with a triplet loss),
+it is not as clear which one performs better.
+From the results, we can see that the classification fine-tuning has a better
+performance for AlexNet while the triplet loss fine-tuning has a better
+performance for ResNet. This is most likely due to two factors: the
+hyper-parameters when training the Siamese AlexNet were not perfectly
+suited, hence the convergence behavior is not as good as with the Siamese
+ResNet. Furthermore, the AlexNet fine-tuned for classification has a much
+larger descriptor of dimension 9216 versus the descriptor of dimension
+2048 of the simplified Siamese architecture. This may explain that
+the simplified Siamese architecture performs worse in this case.
+
+Finally, when comparing the proposed architecture with the previous ones,
+it is clear that the proposed architecture out-performs all of them.
+It achieves much higher precision@1 as well as higher mean average precision,
+especially when combined with the instance feature augmentation as described
+in Section~\ref{sec:ifa}. It also out-performs the network proposed by
+Gordo et al.~\cite{gordo_deep_2016}. The comparison between these two
+networks is difficult though. This is because on the on hand, our proposed
+network is trained on the reference dataset used when comparing images,
+giving it an unfair advantage. On the other hand, the network published
+by Gordo et al. is trained on the much much larger Landmarks dataset
+~\cite{babenko_neural_2014}, giving it the advantage of data volume.
+As shown in Sections~\ref{sec:tripletselection}~and~\ref{sec:roi},
+the training methodology developed by Gordo et al. is not applicable
+to a small, clean dataset, such as the ones used in our evaluation.
