@@ -23,16 +23,16 @@ have approximately the same performance, with % TODO.
 \begin{table}
 \begin{tabular}{|l|c|c|}
 \hline & \multicolumn{2}{c|}{\emph{CLICIDE training}}\\
-\hline & Time (h) & GPU memory (MB)\\
+\hline & Time (h) & GPU memory (MiB)\\
 \hline \emph{AlexNet IN} & 0 & 0\\
 \hline \emph{ResNet-152 IN} & 0 & 0\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016}} & 0 & 0\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (multi-resolution)}
 & 0 & 0\\
-\hline \emph{AlexNet FT} & 0 & 0\\ % TODO !
-\hline \emph{ResNet-152 FT} & 0 & 0\\
-\hline \emph{Proposed AlexNet} & 0 & 0\\ % TODO !
-\hline \emph{Proposed ResNet-152} & 0 & 0\\
+\hline \emph{AlexNet FT} & 1.429 & 1706\\
+\hline \emph{ResNet-152 FT} & 1.621 & 6910\\
+\hline \emph{Proposed AlexNet} & 38.24 & 1956\\
+\hline \emph{Proposed ResNet-152} & 71.92 & 10494\\
 \hline
 \end{tabular}
 \caption{Performance of different approaches in terms of time in seconds and
@@ -43,16 +43,16 @@ maximal GPU memory usage in MB when training on the CLICIDE dataset
 \begin{table}
 \begin{tabular}{|l|c|c|}
 \hline & \multicolumn{2}{c|}{\emph{CLICIDE test per image}}\\
-\hline & Time (h) & GPU memory (MB)\\
+\hline & Time (ms) & GPU memory (MiB)\\
 \hline \emph{AlexNet IN} & 0 & 0\\ % TODO !
 \hline \emph{ResNet-152 IN} & 0 & 0\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016}} & 0 & 0\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (multi-resolution)}
 & 0 & 0\\
-\hline \emph{AlexNet FT} & 0 & 0\\ % TODO !
-\hline \emph{ResNet-152 FT} & 0 & 0\\
-\hline \emph{Proposed AlexNet} & 0 & 0\\ % TODO !
-\hline \emph{Proposed ResNet-152} & 0 & 0\\
+\hline \emph{AlexNet FT} & 4.6 & 1012\\
+\hline \emph{ResNet-152 FT} & 26.1 & 944\\
+\hline \emph{Proposed AlexNet} & 12.3 & 1116\\
+\hline \emph{Proposed ResNet-152} & 45.2 & 2212\\
 \hline
 \end{tabular}
 \caption{Performance of different approaches in terms of time in seconds and
@@ -90,10 +90,10 @@ as various other approaches.
 & 92.73 & 95.65 & 0 & 0\\
 \hline \emph{AlexNet FT} & 0 & 0 & 0 & 0\\ % TODO !
 \hline \emph{ResNet-152 FT} & 0 & 0 & 0 & 0\\
-\hline \emph{Proposed AlexNet} & 0 & 0 & 0 & 0\\ % TODO !
-\hline \emph{Proposed ResNet-152} & 0 & 0 & 0 & 0\\
-\hline \emph{Proposed AlexNet (IFA)} & 0 & 0 & 0 & 0\\ % TODO !
-\hline \emph{Proposed ResNet-152 (IFA)} & 0 & 0 & 0 & 0\\
+\hline \emph{Proposed AlexNet} & 81.21 & 83.15 & 45.53 & 71.71\\ % TODO !
+\hline \emph{Proposed ResNet-152} & 94.55 & 96.20 & 82.94 & 91.83\\
+\hline \emph{Proposed AlexNet (IFA)} & 80.61 & 82.61 & 71.02 & 81.66\\ % TODO !
+\hline \emph{Proposed ResNet-152 (IFA)} & 93.94 & 95.11 & 94.23 & 93.86\\
 \hline
 \end{tabular}
 \caption{Evaluation results for the CLICIDE and GaRoFou datasets.
