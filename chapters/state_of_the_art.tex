@@ -1,7 +1,7 @@
 % !TeX root = ../full_report.tex
 
 \chapter{State of the art}
-\section{SIFT and bag-of-words}
+\section{SIFT and bag-of-words}\label{sec:sift}
 Until recently, the state of the art in image retrieval and matching
 was based on the idea of
 bag-of-words~\cite{philbin_object_2007,mikulik_learning_2013}.
@@ -36,6 +36,74 @@ and the chi-squared function~\cite{vedaldi_efficient_2012}.
 Until recently, this approach has obtained state of the art results for
 image retrieval tasks~\cite{mikulik_learning_2013}.
 
+\section{Fisher vectors (FV)}\label{sec:fv}
+The Fisher vector representation is based on the Fisher kernel, as described
+by Jaakkola and Haussler~\cite{jaakkola_exploiting_1999}. The main idea
+in their work is to derive a kernel function for discriminative classification,
+where the kernel function is derived from a generative probability model.
+For this, the log-likelihood with respect to a parameter $\log P(X|\theta)$
+is considered, where $X$ is the data and $\theta$ the parameter.
+
+The Fisher kernel is based on the gradient of this log-likelihood which
+essentially captures how much the parameter contributes to the generation
+of a sample $X$. This principle has been applied to images as well by
+Sanchez et al.~\cite{sanchez_image_2013}, in the context of image
+classification. Here, the data (or samples) are the local descriptors of
+patches of images and the parameters to be estimated are the parameters
+of a Gaussian Mixture Model (GMM) of these descriptors.
+This means that we consider the descriptor of an image as a
+combination of local descriptors, each being independent of all others,
+with each local descriptor contributing to the global descriptor through
+a GMM. This GMM can have any number
+of parameters, which can be learned through the expectation maximization
+algorithm. The Fisher vector is the gradient of the log-likelihood of this
+GMM with respect to the parameters. Thus, it represents the combination
+of deviations from the generative model of all local descriptors of the
+image, for each parameter of the model.
+
+Another important property is that the Fisher
+vector embeds each local descriptor into a space of
+different dimension, which consists of the weights, means and co-variances
+of the Gaussians of the GMM. The dimensionality of the Fisher
+vector is thus ultimately dependent on the number of Gaussians chosen for
+the GMM.
+
+It can be shown that this representation represents a kernel for a kernel
+machine and can thus be used very efficiently by linear classifiers learning
+their parameters in the Fisher kernel space.
+
+While the Fisher vector representation has a high dimensionality, it
+has been shown that it can be compressed efficiently
+~\cite{sanchez_image_2013,perronnin_large-scale_2010} and could be applied
+to large-scale image retrieval systems~\cite{perronnin_large-scale_2010}.
+
+\section{VLAD}
+Another important descriptor used in image retrieval systems is the
+vector of locally aggregated descriptors or VLAD. It was introduced
+by Jegou et al.~\cite{jegou_aggregating_2010} and is related to both
+the bag-of-words and the Fisher vector representations described in
+Sections~\ref{sec:sift}~and~\ref{sec:fv}.
+
+As with the bag-of-words approach, a visual vocabulary is formed
+using the k-means clustering algorithm. Then, for each visual
+word $w$ (one of the $k$ centers of the output of k-means)
+and each local descriptor $x$ associated with $w$ (where $w$ is the closest
+center), the difference $x-w$ is added to the VLAD representing $w$.
+
+Hence, VLAD is a sum over the differences between all local descriptors
+and their associated visual word. This is similar to the Fisher vector
+representation, which represents a sum of the deviations of local
+descriptors from the generative model, which can be seen as consisting
+of the visual vocabulary.
+
+Jegou et al.~\cite{jegou_aggregating_2010} show that the VLAD representation
+has many advantages over previous representations. For one, it achieves
+state-of-the-art results on the Holidays dataset~\cite{jegou_hamming_2008}.
+Furthermore, it can be compressed efficiently using principal component
+analysis and still achieve promising results, making it much faster to
+compute than the Fisher vector representation, even when compressed
+as described in Section~\ref{sec:fv}.
+
 \section{Deep learning with CNNs}
 Starting with the results of AlexNet for image classification in the 2012
 ImageNet challenge~\cite{krizhevsky_imagenet_2012,russakovsky_imagenet_2015},
@@ -46,7 +114,7 @@ A general trend in image related tasks is to move to an end-to-end
 approach, where the final objective is directly optimized using gradient
 descent and the gradient is back-propagated to all previous parts of the
 system. In contrast, the bag-of-words model requires a choice of
-features (SIFT, ORB (TODO mention ORB before), \dots),
+features (SIFT, ORB~\cite{rublee_orb:_2011}, \dots),
 a choice of the method for clustering features (k-means),
 a choice of the classifier (AdaBoost~\cite{freund_desicion-theoretic_1995},
 SVM, \dots), as well as a choice of the kernel if an SVM classifier is used.
@@ -78,7 +146,8 @@ Apart from that, AlexNet is a simple adaptation of LeNet by
 LeCun et al.~\cite{lecun_gradient-based_1998} for the ImageNet challenge.
 
 \subsection{VGG}
-The VGG architecture, introduced by Simonyan et al.~\cite{simonyan_very_2014}
+The VGG architecture, introduced by
+Simonyan and Zisserman~\cite{simonyan_very_2014}
 is the first to use exclusively $3\times3$ convolutional kernels.
 This means that the receptive field of the
 first filters is much smaller, and thus many more layers are needed,
@@ -140,7 +209,7 @@ the descriptor. The final descriptor is simply a normalized sum of the
 region-wise descriptors. This network can be learned end-to-end and
 the obtained descriptor achieves state of the art results, which can
 be even further improved by using query expansion and database side
-feature augmentation (TODO either remove or mention before).
+feature augmentation (described in detail in Section~\ref{sec:improvedesc}).
 
 Gordo et al.~\cite{gordo_deep_2016} found that using very deep networks
 outperforms the shallower networks. The state of the art results are
