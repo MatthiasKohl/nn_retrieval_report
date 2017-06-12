@@ -190,11 +190,11 @@ described in Section~\ref{sec:evalmethod}.
 \begin{tabular}{|l|c|c|}
 \hline & \emph{CLICIDE} & \emph{GaRoFou}\\
 \hline \emph{SIFT} & 70.08 & 78.82\\
-\hline \emph{AlexNet IN} & 57.58 & 76.63\\
-\hline \emph{ResNet-152 IN} & 64.24 & 75.54\\
-\hline \emph{Gordo et al.}~\cite{gordo_deep_2016} & 90.30 & 95.65\\
+\hline \emph{AlexNet IN} & 72.73 & 85.87\\
+\hline \emph{ResNet-152 IN} & 72.12 & 85.33\\
+\hline \emph{Gordo et al.}~\cite{gordo_deep_2016} & 90.30 & \textbf{95.65}\\
 \hline \emph{Gordo et al.}~\cite{gordo_deep_2016} (multi-resolution)
-& 92.73 & 95.65\\
+& \textbf{92.73} & \textbf{95.65}\\
 \hline
 \end{tabular}
 \caption{Evaluation base-lines set for the CLICIDE and GaRoFou datasets.
@@ -210,9 +210,22 @@ Portaz et al.~\cite{portaz_construction_nodate}, where it is detailed.
 For the \emph{AlexNet IN} and \emph{ResNet-152 IN} methods,
 an AlexNet and ResNet-152 architecture is pre-trained on the ImageNet dataset.
 Then, the descriptor is simply extracted by passing an image through the
-network and normalizing the output. As ImageNet contains 1000 classes, the
-output has 1000 dimensions. Each image is simply pre-processed by scaling
-it to the expected size of the network at $224 \times 224$.
+convolutional layers of the
+network and normalizing the output. For the ResNet architecture, the final
+average pooling is performed as well to produce a descriptor of similar
+dimensions to the others. This means the descriptor has dimension 2048
+for the ResNet architecture and 9216 for the AlexNet architecture.
+
+For all networks presented here which require images of a specific size,
+all images are simply pre-processed by resizing them to the expected
+size. Since the networks are based on networks built for the ImageNet
+challenge
+~\cite{russakovsky_imagenet_2015,he_deep_2015,krizhevsky_imagenet_2012},
+the expected size is $224 \times 224$. The results of pre-trained
+networks on ImageNet (\emph{AlexNet IN} and \emph{ResNet-152 IN}),
+fine-tuned networks on classification (Section~\ref{sec:finetuning}) and
+simplified Siamese networks (Section~\ref{sec:simplifiedsiam}) all use
+images resized to $224 \times 224$.
 
 The method referred to as \emph{Gordo et al.}~\cite{gordo_deep_2016}
 is based on the pre-trained network published publicly.
