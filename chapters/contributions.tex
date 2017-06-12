@@ -11,15 +11,18 @@ we consider each instance as a class, and optimize using a cross-entropy
 loss, typical for classification.
 
 \begin{equation}\label{eq:crossent}
-\mathcal{L} = - \frac{1}{N}
-\sum_{i=1}^N y_i \log \hat{y}_i + (1-y_i) \log (1-\hat{y}_i)
+\mathcal{L} = \frac{1}{N}
+\sum_{i=1}^N -y_i \log \hat{y}_i - (1-y_i) \log (1-\hat{y}_i)
+= \frac{1}{N} \sum_{i=1}^N \mathcal{CL}_i
 \end{equation}
 
 Equation~\ref{eq:crossent} describes the cross-entropy loss for a
 given instance. $N$ is the number of samples, $y_i$ an indicator
 variable taking the value $1$ if sample $i$ belongs to the given
 instance and $0$ otherwise, and $\hat{y}_i$ is the predicted probability
-that sample $i$ belongs to the given instance.
+that sample $i$ belongs to the given instance. In the following,
+we denote the cross-entropy loss for the $i$-th sample as
+$\mathcal{CL}_i$.
 
 Fine-tuning a CNN for classification on different data has been studied
 intensively by Yosinki et al.~\cite{yosinski_how_2014}. In particular,
@@ -420,21 +423,24 @@ outputs and scales. Equation~\ref{eq:fcnloss} shows the loss for a
 single image. $S$ represents the number of scales at which the image
 is passed through the network.
 $H_s$ and $W_s$ represent the height and width of the feature
-map respectively, given the scale $s$ of the input image. $y^{h,w}$
-represents the prediction of the network at spatial location
-$(h,w)$ in the full feature map.
+map respectively, given the scale $s$ of the input image.
+$\mathcal{CL}^{h,w}$ represents the cross-entropy loss applied
+at spatial location $(h,w)$ in the full feature map. It is applied
+for each prediction $y^{h,w}$ of the network and the constant true label
+$\hat{y}$.
 
 \begin{equation}\label{eq:fcnloss}
-\mathcal{L} = \frac{1}{S} \sum_{s=1}^S - \frac{1}{H_s*W_s}
-\sum_{h=1}^{H_s} \sum_{w=1}^{W_s} y^{h,w} \log \hat{y} +
-(1-y^{h,w}) \log (1-\hat{y})
+\mathcal{L} = \frac{1}{S} \sum_{s=1}^S \frac{1}{H_s*W_s}
+\sum_{h=1}^{H_s} \sum_{w=1}^{W_s} \mathcal{CL}^{h,w}
 \end{equation}
 
-We can see from the Equation that we chose to give each scale of the image
-the same weight in the loss. Additionally, we can see that this loss can
-only be applied to one image at a time, hence the true label $\hat{y}$ is
-a constant in Equation~\ref{eq:fcnloss}.
-This is because the images are passed to the network at their true
+Additionally, we can see from Equation~\ref{eq:fcnloss} that we choose
+to give each scale of the image the same weight in the loss. This
+attenuates the effect of large scales with many predictions (high
+values for $H_s$ and $W_s$).
+
+Finally, this loss can only be applied to one image at a time because
+the images are passed to the network at their true
 aspect ratio, which means the loss for different images may have different
 values for the heights and widths of the feature maps $H_s$ and $W_s$.
 
@@ -525,14 +531,13 @@ the $k$ locations.
 
 Equation~\ref{eq:proposedloss} shows the full loss as used in our
 experiments to train the proposed model, for a $N$ images. In this
-equation, $(h_l, w_l)$ represent the spatial coordinates of the $l$-th
+equation, $(h_l, w_l)$ represents the spatial coordinates of the $l$-th
 region of highest maximal activation in the feature map produced by
 the FCN.
 
 \begin{equation}\label{eq:proposedloss}
 \mathcal{L} = \sum_{i=1}^N \left( \max(0, x^a_i x^n_i - x^a_i x^p_i + m) +
-\alpha \frac{1}{N} \frac{1}{k} \sum_{l=1}^k -
-y_i^{h_l,h_l} \log \hat{y}_i + (1-y_i^{h_l,w_l}) \log (1-\hat{y}_i) \right)
+\alpha \frac{1}{N} \frac{1}{k} \sum_{l=1}^k \mathcal{CL}_i^{h_l,w_l} \right)
 \end{equation}
 
 In our experiments, we choose the number of regions with highest maximal
