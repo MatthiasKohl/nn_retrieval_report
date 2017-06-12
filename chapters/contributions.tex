@@ -129,7 +129,13 @@ relevant for our datasets and research problem in general.
 Except for this change, the architecture is kept exactly as described
 by Figures~\ref{fig:gordo_deploy}~and~\ref{fig:gordo_train}.
 
-\subsection{Triplet selection}
+Just as suggested by previous authors
+~\cite{gordo_deep_2016,schroff_facenet:_2015}, when training the Siamese
+model, it is initialized with weights of a model fine-tuned on classification
+on the same dataset. Here, this fine-tuning is performed as described in
+Section~\ref{sec:finetuning} above.
+
+\subsection{Triplet selection}~\label{sec:tripletselection}
 As noted by previous authors, when using the triplet loss, it is
 crucial to choose the best triplets during training in order to
 obtain convergence. In particular, many triplets are irrelevant
@@ -138,7 +144,7 @@ and do not produce any loss since they are \emph{too easy} for the network.
 Hence, the first idea is to choose the hardest triplets, as proposed by
 Schroff et al.~\cite{schroff_facenet:_2015}. However, as they show in
 their paper, this can lead to a collapsing model early on in training
-so they choose  \emph{semi-hard} triplets instead. Semi-hard triplets
+so they choose \emph{semi-hard} triplets instead. Semi-hard triplets
 are obtained as follows:
 use all possible positive couples of images: couples of images from the
 same instance. For each positive couple, choose the hardest negative
@@ -269,7 +275,8 @@ maximal activations of a fine-tuned network are a good indicator of
 the location of an object, or a combination of different objects.
 Using this assumption, there is no need
 for a procedure to annotate regions of interest, as employed by most
-image retrieval approaches. % TODO
+state-of-the-art image retrieval approaches
+~\cite{gordo_deep_2016,tolias_particular_2015,radenovic_cnn_2016}.
 
 On the other hand, using datasets developed for image retrieval,
 such as Paris6k or Oxford5k~\cite{philbin_lost_2008,philbin_object_2007},
@@ -458,7 +465,7 @@ in stochastic gradient descent.
 
 However, using a micro-batch formed of a single image represents an issue
 with the ResNet architecture: this model uses batch-norm layers, introduced
-by Ioffe et al.~\cite{ioffe_batch_2015}. When training a model, the layer
+by Ioffe and Szegedy~\cite{ioffe_batch_2015}. When training a model, the layer
 normalizes each batch by its mean and variance. However, it keeps a running
 mean and variance, which approximates the true mean and variance of the
 dataset and which is applied during testing. With a micro-batch size
@@ -533,7 +540,7 @@ activation to be $k=4$ and the regularization hyper-parameter $\alpha=1.0$.
 The margin of the triplet loss is $m=0.1$ as described in
 Section~\ref{sec:simplifiedsiam}.
 
-\subsection{Advantages} % TODO probably remove
+\subsection{Advantages and limitations}
 As shown in Section~\ref{sec:analysisprev}, this approach
 allows the network to decide which region of interest is
 best suited for classification and ultimately which regions
@@ -555,7 +562,20 @@ in Section~\ref{sec:perfresults}. On the other hand, this means that
 the descriptor cannot be applied in a typical image retrieval
 task.
 
-\section{Additional improvements of descriptors}
+Another limitation is the following: for the region descriptor extracted from
+an FCN to be robust, the dataset used to fine-tune the FCN needs to be
+very clean, as described in Section~\ref{sec:analysisprev}. Since there
+are very few images per instance and each instance represents a class,
+a classification network can easily identify a class if it consists
+of one or two images representing background noise. This can render
+the region descriptor meaningless, since in this case, any part of an image
+which contains mostly background noise may be labeled with high confidence
+as such a 'background noise instance'. For the region descriptor to be
+meaningful, it is thus important that the training images contain only
+'meaningful' representations of instances and that they are
+correctly labeled with respect to those instances.
+
+\section{Additional improvements of descriptors}\label{sec:improvedesc}
 Up to this point, we consider each approach
 as if it provides a strong descriptor for each image, and we only
 evaluate the performance of this descriptor.
@@ -615,8 +635,8 @@ improve mean precision@1.
 \subsection{Database-side feature augmentation}
 Another common approach to improve the performance of descriptors
 in image retrieval was introduced
-by Turcot et al.~\cite{turcot_better_2009} and
-Arandjelovic et al.~\cite{arandjelovic_three_2012}.
+by Turcot and Lowe~\cite{turcot_better_2009} and
+Arandjelovic and Zisserman~\cite{arandjelovic_three_2012}.
 
 The idea is to combine the descriptors of the reference
 images in order to form more robust database-side descriptors.
