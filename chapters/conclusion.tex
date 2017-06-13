@@ -6,7 +6,7 @@ During our research, we analyzed state-of-the-art approaches in
 image classification and image retrieval and their application to
 the instance search problem. We found that these approaches struggle
 with query images and reference images being at different scales.
-Additionally, the region proposals used by the state-of-the-art do not
+Additionally, the region proposals used by the state of the art do not
 seem applicable to the problem of instance search.
 
 We have presented a novel approach, which consists of two key steps.
@@ -20,7 +20,7 @@ our research problem.
 
 Finally, the proposed network keeps all the benefits of state-of-the-art
 approaches: it can be trained end-to-end and it produces an effective
-global descriptor, which can be compared using the dot-product.
+global descriptor, which can be compared using the dot product.
 Additionally, it is modular in the sense that it can be built upon
 any type of CNN, pre-trained for classification.
 Furthermore, the proposed network is fast to evaluate and the training
@@ -29,7 +29,7 @@ time for each dataset is reasonable.
 Through multiple experiments on two datasets, we show that the descriptor
 obtained using our proposed network outperforms previous state-of-the-art
 approaches on the instance search task, while being just as memory-efficient
-and fast.
+and fast for encoding images.
 
 \section{Future work}
 \subsection{Few-shots classification}
@@ -42,15 +42,15 @@ As noted before, our research problem shares many similarities with the
 few-shots classification problem. Furthermore, this paper presents a
 method of combining the triplet loss and cross-entropy loss in order to
 organize a memory of so-called rare events. This is similar to our proposed
-approach and may be adapted to our research problem. At the very least,
-it could provide significant insight to the instance search problem.
+approach and may be adapted to instance retrieval. At the very least,
+it could provide significant insight to the instance retrieval problem.
 
 \subsection{Conditional similarities}
 Another interesting paper presented earlier this year is by
-Veit et al.~\cite{veit_conditional_2016}. It presents a method of
+Veit et al.~\cite{veit_conditional_2017}. It presents a method of
 capturing semantically different notions of similarity. The main idea
-is that there are types of similarity (color, category, etc.) and
-thus images are embedded into many different subspaces, which capture
+is to consider different types of similarity (color, category, etc.) and
+thus to embed images into many different subspaces, which capture
 these different types of similarity. Finally, they present a method
 to jointly learn a global embedding, made up of different sub-embeddings
 for the sub-spaces representing different similarities.

@@ -93,7 +93,7 @@ and $PRED$ is the number of all predictions, including incorrect ones.
 $PRED$ is usually equal to the size of the testing dataset in classification.
 
 In information retrieval, similarly,
-precision and more generally Precision$@k$ is a measure of how many
+precision and more generally precision$@k$ is a measure of how many
 relevant documents were retrieved out of all retrieved documents.
 However, the metric is evaluated for each query, instead of the whole
 testing dataset.
@@ -104,13 +104,13 @@ $RET$ represents the total number of retrieved documents. Finally, $RR^k_q$
 represents the number of retrieved, relevant documents out of the $k$ first
 retrieved documents for query $q$.
 
-Thus, Precision$@k$ simply uses a cut-off at $k$: it measures how many
+Thus, precision$@k$ simply uses a cut-off at $k$: it measures how many
 relevant documents there are in the first $k$ retrieved documents.
 
 In instance search, only the first retrieved document is important:
 If the first result is correct, we correctly identify the instance.
-Hence, we are mostly interested in the Precision@1 metric here.
-In order to generalize this metric to all queries, the mean Precision@1
+Hence, we are mostly interested in the precision@1 metric here.
+In order to generalize this metric to all queries, the mean precision@1
 is used, as defined in Equation~\ref{eq:prec1}. In this equation,
 $Q$ represents the number of queries.
 
@@ -136,7 +136,7 @@ for query $q$ as compared to all relevant documents to query $q$.
 
 Equation~\ref{eq:ap} defines average precision for a given query $q$:
 it can be expressed as a finite sum
-over the Precision@k values at every possible cut-off $k$, multiplied by an
+over the precision@k values at every possible cut-off $k$, multiplied by an
 indicator $rel(RET_k)$, which is 1 if the $k$-th retrieved document is
 relevant. This sum is then normalized by the total number of relevant
 documents for query $q$ $REL_q$.
@@ -151,7 +151,7 @@ precision values over $Q$ queries, as defined in Equation~\ref{eq:map}.
 In instance search, mean average precision is not as important as in image retrieval,
 since we only care about the first ranked result. Nevertheless, it can be an interesting
 metric to allow better comparison between different systems, so we compute
-the mean average precision for all results along with the mean Precision@1.
+the mean average precision for all results along with the mean precision@1.
 
 \section{Evaluation methodology}\label{sec:evalmethod}
 Unless explicitly noted, an evaluation of the system is carried out as
@@ -169,7 +169,7 @@ and the descriptors of reference images.
 This is because the cosine similarity between two normalized vectors is
 equal to the dot product between the two vectors, from the definition
 of the cosine similarity. Furthermore, Equation~\ref{eq:sqdistcosdot} shows
-that the dot product is simply inversely proportional to the squared
+that the dot product is closely related to the squared
 euclidean distance between two normalized vectors.
 This means that a high cosine similarity, high value of the dot product
 and low squared euclidean distance between two descriptors have the
@@ -182,7 +182,7 @@ resulting vector indicates the most similar reference image.
 \section{Baselines}\label{sec:baselines}
 Table~\ref{tab:baselines} shows the baselines set for the two evaluation
 datasets, as described in Section~\ref{sec:datasets}. The metric used
-to compare systems is mean Precision@1, as described in
+to compare systems is mean precision@1, as described in
 Section~\ref{sec:precision}, and the evaluation is carried out as
 described in Section~\ref{sec:evalmethod}.
 
@@ -192,14 +192,14 @@ described in Section~\ref{sec:evalmethod}.
 \hline \emph{SIFT} & 70.08 & 78.82\\
 \hline \emph{AlexNet IN} & 72.73 & 85.87\\
 \hline \emph{ResNet-152 IN} & 72.12 & 85.33\\
-\hline \emph{Gordo et al.}~\cite{gordo_deep_2016} & 90.30 & \textbf{95.65}\\
-\hline \emph{Gordo et al.}~\cite{gordo_deep_2016} (multi-resolution)
+\hline \emph{Gordo et al.}~\cite{gordo_deep_2016} (ResNet-50) & 90.30 & \textbf{95.65}\\
+\hline \emph{Gordo et al.}~\cite{gordo_deep_2016} (ResNet-50, multi-res)
 & \textbf{92.73} & \textbf{95.65}\\
 \hline
 \end{tabular}
 \caption{Evaluation base-lines set for the CLICIDE and GaRoFou datasets.
 The results are expressed in percentage points of
-Mean Precision@1\label{tab:baselines}}
+mean precision@1\label{tab:baselines}}
 \end{table}
 
 The descriptors used for comparing images are extracted using different
@@ -221,23 +221,25 @@ For all networks presented here which require images of a specific size,
 all images are simply pre-processed by resizing them to the expected
 size. Since the networks are based on networks built for the ImageNet
 challenge
-~\cite{russakovsky_imagenet_2015,he_deep_2015,krizhevsky_imagenet_2012},
+~\cite{russakovsky_imagenet_2015,he_deep_2016,krizhevsky_imagenet_2012},
 the expected size is $224 \times 224$. The results of pre-trained
 networks on ImageNet (\emph{AlexNet IN} and \emph{ResNet-152 IN}),
 fine-tuned networks on classification (Section~\ref{sec:finetuning}) and
 simplified Siamese networks (Section~\ref{sec:simplifiedsiam}) all use
 images resized to $224 \times 224$.
 
-The method referred to as \emph{Gordo et al.}~\cite{gordo_deep_2016}
-is based on the pre-trained network published publicly.
-For this network, images do not need to
-be pre-processed, as the network works with region proposals and thus accepts
+The method by Gordo et al.~\cite{gordo_deep_2016}
+is based on the pre-trained network published publicly, based on a ResNet-50
+architecture. For this network, images are only pre-processed to have a
+common size of 800 pixels on the smaller side of the image,
+as the network works with region proposals and thus accepts
 any scale of image. This network outputs a descriptor with 2048 dimensions.
 Finally, the multi-resolution method uses input images with different
-scales of the smaller side.
+sizes of the smaller side (550, 800 and 1050 pixels).
 
 \section{Performance}
-The performance evaluation is carried out on a typical system used for training CNNs.
+The performance evaluation is carried out on a typical system used for
+training CNNs.
 The components approximately represent the highest standard available for a
 single-GPU server architecture in 2016.
 
@@ -245,22 +247,26 @@ The server contains the following components:
 \begin{enumerate}
     \item CPU: Intel\textsuperscript{\textregistered} Xeon\textsuperscript{\textregistered}
     E5-2623 v4, 16 cores, 10MB cache, 2.60GHz
-    \item Memory: 142 GB, DDR4 % TODO mem speed
+    \item Memory: 144 GB, DDR4 % TODO mem speed
     \item Graphics card: NVIDIA\textsuperscript{\textregistered} Titan X, Pascal architecture,
-    12 GB memory
+    12 GB memory (two of such graphics cards were available but only one
+    was used in the performance evaluation at a time)
 \end{enumerate}
 
-Performance is measured in time in seconds or hours required to execute the task,
-as well as GPU memory required. If multiple sub-tasks are performed for
+Performance is measured in time in milliseconds or hours required to
+execute the task, as well as GPU memory required.
+If multiple sub-tasks are performed for
 a task, the reported performance is simply the accumulation of time and
 the maximum of required GPU memory of the sub-tasks.
 \subsection{Training}
-The training performance is evaluated using the server as described above and the
-CLICIDE dataset as described in Section~\ref{sec:datasets}, containing 3245 images.
+The training performance is evaluated using the server as described above
+and the CLICIDE dataset as described in Section~\ref{sec:datasets},
+containing 3245 images.
 
 The training performance was measured only for tasks specific to the dataset,
 as other tasks can be performed once upfront for any dataset and parameter
-weights can be transferred in a negligible amount of time. In particular, this means
+weights can be transferred in a negligible amount of time.
+In particular, this means
 that pre-training a network on a dataset not specific to our task is
 counted as using no time or memory.
 

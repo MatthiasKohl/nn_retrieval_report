@@ -3,8 +3,17 @@
 \appendix \chapter{Appendix}
 
 \section{Reproducibility}
-The scripts used to produce all results presented in this work are accessible
-publicly here: \url{https://github.com/MatthiasKohl/nnForRetrieval}
+\subsection{Datasets}
+The datasets used in our research are publicly available at the following
+URL: \url{http://lig-mrim.imag.fr/?page_id=455}
+
+\subsection{Implementation}
+The implementation used to produce all results presented in this work
+are accessible publicly at the following URL:
+\url{https://github.com/MatthiasKohl/nnForRetrieval}
+
+Links to pre-trained weights of the models used in the evaluation of our
+research will be added to the repository.
 
 For training and testing on a new dataset, the following steps are needed:
 
@@ -28,13 +37,12 @@ For training and testing on a new dataset, the following steps are needed:
         \item \emph{num\_classes}: the number of classes/instances in the dataset
         \item \emph{image\_sizes}: this is usually always (3, 224, 224)
     \end{enumerate}
-    \item Run \emph{python test/[training method]\_test.py} and follow
-    the instructions for command-line parameters, which should be self
+    \item For testing, run \emph{python test/[training method]\_test.py} and
+    follow the instructions for command-line parameters, which should be self
     explanatory
     \item For training, edit \emph{train/[training method]\_p.py}.
-    Most parameters should be self explanatory
-    \item Run \emph{python train/[training method].py} from the main
-    directory
+    Most parameters should be self explanatory. Then, run
+    \emph{python train/[training method].py} from the main directory
 \end{enumerate}
 
 % TODO possibly add paper here

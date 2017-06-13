@@ -5,6 +5,9 @@
 Until recently, the state of the art in image retrieval and matching
 was based on the idea of
 bag-of-words~\cite{philbin_object_2007,mikulik_learning_2013}.
+The approach was introduced to image retrieval by Sivic and Zisserman
+~\cite{sivic_video_2003} as well as Csurka et al.~\cite{csurka_visual_2004}.
+
 The idea behind the approach is to represent an image as a histogram,
 or collection of frequencies, of visual words. The visual words should
 be small, representative patches of the images in the dataset.
@@ -24,16 +27,15 @@ Finally, for image classification, a classifier can be learned from the
 descriptors of all images in the dataset. On the other hand, for image
 retrieval or matching, the descriptors can be directly matched against
 each other, based on some similarity measure.
-In both cases, it can be useful to project the descriptors into a Hilbert
-space using a different similarity measure than euclidean distance
-in the original descriptor space.
+In both cases, it can be useful to use a different similarity measure
+than the euclidean distance in the original descriptor space.
 For classification, this is done by employing an SVM classifier with a
 non-linear kernel~\cite{shawe-taylor_kernel_2004}.
 Among the most popular kernels are the
 radial basis function~\cite{scholkopf_comparing_1997}
 and the chi-squared function~\cite{vedaldi_efficient_2012}.
 
-Until recently, this approach has obtained state of the art results for
+Until recently, this approach has obtained state-of-the-art results for
 image retrieval tasks~\cite{mikulik_learning_2013}.
 
 \section{Fisher vectors (FV)}\label{sec:fv}
@@ -44,7 +46,7 @@ where the kernel function is derived from a generative probability model.
 For this, the log-likelihood with respect to a parameter $\log P(X|\theta)$
 is considered, where $X$ is the data and $\theta$ the parameter.
 
-The Fisher kernel is based on the gradient of this log-likelihood which
+The Fisher vector is based on the gradient of this log-likelihood which
 essentially captures how much the parameter contributes to the generation
 of a sample $X$. This principle has been applied to images as well by
 Sanchez et al.~\cite{sanchez_image_2013}, in the context of image
@@ -63,10 +65,10 @@ image, for each parameter of the model.
 
 Another important property is that the Fisher
 vector embeds each local descriptor into a space of
-different dimension, which consists of the weights, means and co-variances
-of the Gaussians of the GMM. The dimensionality of the Fisher
-vector is thus ultimately dependent on the number of Gaussians chosen for
-the GMM.
+different dimension, which consists of the parameters of the GMM:
+weights, means and co-variances of the Gaussians.
+The dimensionality of the Fisher vector is thus ultimately dependent
+on the number of Gaussians chosen for the GMM.
 
 It can be shown that this representation represents a kernel for a kernel
 machine and can thus be used very efficiently by linear classifiers learning
@@ -74,7 +76,7 @@ their parameters in the Fisher kernel space.
 
 While the Fisher vector representation has a high dimensionality, it
 has been shown that it can be compressed efficiently
-~\cite{sanchez_image_2013,perronnin_large-scale_2010} and could be applied
+~\cite{sanchez_image_2013,perronnin_large-scale_2010} and can be applied
 to large-scale image retrieval systems~\cite{perronnin_large-scale_2010}.
 
 \section{VLAD}
@@ -100,7 +102,7 @@ Jegou et al.~\cite{jegou_aggregating_2010} show that the VLAD representation
 has many advantages over previous representations. For one, it achieves
 state-of-the-art results on the Holidays dataset~\cite{jegou_hamming_2008}.
 Furthermore, it can be compressed efficiently using principal component
-analysis and still achieve promising results, making it much faster to
+analysis and still achieve promising results, making it faster to
 compute than the Fisher vector representation, even when compressed
 as described in Section~\ref{sec:fv}.
 
@@ -123,11 +125,20 @@ Using a CNN, features are extracted at a low abstraction level by the
 first convolutional layers, then higher level features are formed
 by combining low level features from the previous layers. Finally,
 high-level features are combined into a classifier by linear layers.
+All layers are then optimized together, usually through three main steps.
+First, a loss function evaluates the loss made by the last layer of
+the network. Then, the back-propagation algorithm
+~\cite{rumelhart_learning_1988} exploits the chain-rule of derivatives
+to propagate the gradients of the errors made by each layer from the
+last layer to the first layer of the network. Finally, a stochastic
+gradient descent algorithm
+~\cite{bottou_stochastic_2012,bottou_large-scale_2010,rumelhart_learning_1985}
+is used to optimize the parameters of all layers with respect to the loss.
 The advantage of this approach is that the features are learned at all
-abstraction levels. Furthermore, the modularity of the approach allows
-us to easily transfer the lower level features learned from a large dataset
-to a smaller dataset, where there may not be enough data to efficiently
-learn lower level features.
+abstraction levels at once. Another advantage of neural networks is their
+modularity. It allows us to easily transfer the lower level features
+learned from a large dataset to a smaller dataset, where there may not
+be sufficient amounts of data to efficiently learn lower level features.
 
 The following sections describe the high-level architecture of the
 most widely used CNNs in classification and image retrieval.
@@ -160,7 +171,7 @@ network, while increasing the number of non-linear layers.
 This was shown to allow better generalization properties, and thus less
 over-fit~\cite{simonyan_very_2014}.
 
-\subsection{ResNet, Inception, DenseNet}
+\subsection{ResNet, Inception, DenseNet}\label{sec:verydeepCNNs}
 The idea of increasing the number of layers is further developed
 by the ResNet, DenseNet and Inception architectures. However,
 naively increasing the number of layers leads to the problem of
@@ -171,7 +182,7 @@ introducing skip connections, where the output of a previous layer
 is added to the output of a layer, skipping some number of layers in
 between.
 
-The ResNet architecture by He et al.~\cite{he_deep_2015} always uses blocks
+The ResNet architecture by He et al.~\cite{he_deep_2016} always uses blocks
 of 3 layers along with a skip of those 3 layers. The smaller types of
 ResNet use blocks of 2 layers.
 
@@ -179,14 +190,20 @@ The Inception architecture by Szegedy et al.~\cite{szegedy_inception-v4_2016}
 uses a combination of skip connections of different length and different
 types.
 
-Finally, DenseNet by Huang et al.~\cite{huang_densely_2016} takes the
+Finally, DenseNet by Huang et al.~\cite{huang_densely_2017} takes the
 skip connection idea one step further:
 the input of each layer is dependent on the output of all $n$ previous layers
 to some extent.
 
-Finally, all of the very deep architectures use batch norm layers to further
-reduce over-fit: a batch norm layer simply normalizes the features over each
-batch, and then applies a learnable scaling and shifting.
+All of the very deep architectures use batch norm layers after the
+convolutional layers to further reduce over-fit~\cite{ioffe_batch_2015}:
+a batch norm layer simply normalizes the features over each
+batch, and then applies a learn-able scaling and shifting. During training,
+it also produces estimates of the over-all mean and variance of the input
+of the layer over the whole dataset.
+These estimates of the global mean and variance are used during evaluation
+in order to normalize the data after each block of convolutional and
+pooling layers.
 
 \section{Image retrieval using CNNs}
 For image retrieval, the current state of the art is set by
@@ -204,16 +221,17 @@ Figure~\ref{fig:gordo_deploy} shows the detailed architecture used.
 It first extracts the convolutional features of a pre-trained
 CNN. Then, a Region Proposal Network (RPN)~\cite{ren_faster_2015} is
 used to extract the regions of interest. For each region of interest,
-a shifting and linear layer are used to reduce the dimensionality of
-the descriptor. The final descriptor is simply a normalized sum of the
+a shifting layer, followed by a linear layer are used to reduce the
+dimensionality of the descriptor.
+The final descriptor consists of a normalized sum of the
 region-wise descriptors. This network can be learned end-to-end and
-the obtained descriptor achieves state of the art results, which can
+the obtained descriptor achieves state-of-the-art results, which can
 be even further improved by using query expansion and database side
 feature augmentation (described in detail in Section~\ref{sec:improvedesc}).
 
 Gordo et al.~\cite{gordo_deep_2016} found that using very deep networks
-outperforms the shallower networks. The state of the art results are
-thus set by a very deep ResNet architecture.
+outperforms the shallower networks. The state-of-the-art results are
+thus set by a very deep ResNet-50 architecture, using 50 layers.
 
 \subsection{Siamese networks and triplet loss}
 \begin{figure}
@@ -233,32 +251,47 @@ for each. Then, a combined loss is obtained from the descriptors.
 Finally, the loss is back-propagated once through all streams of the network,
 since shared weights are used for all images.
 
-In the case of this particular architecture, three images are evaluated
-and a triplet loss is used. This triplet loss has previously been used
-in face recognition tasks by Schroff et al.~\cite{schroff_facenet:_2015}.
+The Siamese architecture was first proposed by Chopra et al.
+~\cite{chopra_learning_2005} in the context of facial recognition.
+In this paper, pairs of images are used and a loss was designed to
+move the descriptors of a pair of images together in the descriptor space,
+if the pair represents the same face, while separating the descriptors
+if they represent different faces.
+
+In the case of the architecture presented in Figure~\ref{fig:gordo_train},
+three images are evaluated and a triplet loss is used.
+This triplet loss was shown to be more robust during training than a
+loss using pairs and has been used to set the state of the art
+in facial recognition tasks by Schroff et al.~\cite{schroff_facenet:_2015}.
 The triplet loss was first introduced by
 Weinberger et al.~\cite{weinberger_distance_2006} as a way of learning
 the best suited distance metric in a k-nearest neighbor classification
-problem. Section~\ref{sec:tripletloss} describes this loss in more detail.
+problem through gradient descent.
 This is the reason why the triplet loss was chosen for image retrieval:
 the goal is to learn a metric which allows to discriminate couples of
 images containing the same instance from couples of images containing
-different instances, using the descriptors obtained from the Siamese
+different instances, using the descriptors obtained from the deep
 CNN.
 
+Section~\ref{sec:tripletloss} describes this loss in more detail.
+
 Finally, Gordo et al. made further contributions, detailed in their
-follow-up paper~\cite{gordo_end--end_2016}.
+follow-up paper~\cite{gordo_end--end_2017}. These contributions are
+presented in the following sections.
+
 \subsection{Dataset}
 For one, an important step is to use a suitable dataset. Datasets like
 Oxford5k or Paris6k are too small for a network to learn a distance metric
-applicable to any type of image. Instead, Gordo et al. use the much larger
-Landmarks dataset, created by Babenko et al.~\cite{babenko_neural_2014}.
-This dataset contains almost 200000 images in total of around 600
+applicable to any type of image. Instead, the state of the art uses the
+much larger Landmarks dataset, created by Babenko et al.
+~\cite{babenko_neural_2014} for training.
+This dataset contains almost 200000 images in total, of around 600
 different landmarks, mostly buildings.
 
 Another important step is the cleaning of the dataset. The Landmarks
 dataset contains a lot of noise and weak labels: many images do not
-represent the building they are labeled with. Gordo et al. use a meticulous
+represent the building they are labeled with. Gordo et al.
+~\cite{gordo_end--end_2017} use a meticulous
 cleaning process: the main idea is to keep only the largest clusters
 of matching objects for each of the landmarks. The implementation is
 based on extracting SIFT and Hessian descriptors,
@@ -271,42 +304,26 @@ but is only done once for the dataset.
 The cleaned dataset is still fairly large, containing 49000 images and
 586 instances of landmarks.
 
-\subsection{Triplet choice}
-Another important step is the choice of triplets during training of
-the Siamese network. Schroff et al.~\cite{schroff_facenet:_2015}
-and Weinberger et al.~\cite{weinberger_distance_2006} already identified
-that using random triplets for training means that most triplets do not
-contribute to the loss at all, thus leading to vanishing gradients.
-So it makes sense to try and choose only the hardest triplets: for each
-reference image, find the image with the same label that is furthest from the
-reference image according to the current metric (the hardest positive),
-and the closest from the reference image having a different label
-(the hardest negative).
-However, choosing the hardest positive and hardest negative at each step
-is computationally too expensive.
-So Schroff et al.~\cite{schroff_facenet:_2015}
-propose choosing the hardest triplets for each batch. Since there are only
-a few positive couples available in each batch, we simply choose all
-positive couples along with the hardest negative for each reference image
-in every batch. Since this can lead to a collapse in the model, Schroff
-et al. propose choosing semi-hard negatives in the first epochs of
-training: for each reference image and positive sample, choose the hardest
-negative that is easier (further according to the metric) than the positive.
+\subsection{Triplet selection}
+Another important step is the selection of triplets during training of
+the Siamese network. In a nutshell, choosing random triplets for training means that most triplets do not contribute to the loss at all,
+thus leading to vanishing gradients
+~\cite{schroff_facenet:_2015,weinberger_distance_2006}.
 
-The disadvantage of this strategy is that it requires large batches.
-Instead, Gordo et al.~\cite{gordo_end--end_2016} uses the following
-strategy: pre-compute all descriptors in each epoch of training.
-Then, for each reference image, choose the $n$ easiest positive samples
-and the $m$ hardest negative samples. Compute the loss for all possible
-combinations and use the $n$ hardest triplets, with highest loss.
-This allows using smaller batches, while keeping the cost of computation
-low, since descriptors are only computed every epoch. It may also help
-eliminate some noise in the data, since only the easiest positive couples
-are chosen.
+Thus, different methods have been proposed to overcome this problem
+~\cite{gordo_end--end_2017,schroff_facenet:_2015}. These methods
+aim at choosing the hardest triplets, contributing the most to the loss.
+This needs to be done without being computationally too expensive
+nor choosing exclusively the hardest triplets, as this can collapse
+the model early on in training~\cite{schroff_facenet:_2015}.
+
+The different triplet selection mechanisms are detailed and discussed
+in Section~\ref{sec:tripletselection}.
 
 \subsection{Limitations and goals}\label{sec:limitations}
-The main limitation of Gordo's method is that it aims at producing a
-general descriptor for comparing any type of image. This means that it
+The main limitation of the state of the art with respect to instance retrieval
+is that it aims at producing a general descriptor for comparing any type
+of image. This means that it
 is most effective when trained on large datasets, with many samples
 per instance. For datasets containing images from museums or tourist
 sites, this is usually not applicable, as there are usually only very few
@@ -316,7 +333,7 @@ This makes it difficult to directly apply the state of the art on
 our datasets.
 
 On the other hand, it also means that the state of the art in
-image retrieval wants to avoid over-fit at all costs:
+image retrieval aims at avoiding over-fit at all costs:
 the learned descriptor and metric should
 be able to provide a good metric for any kind of image.
 While this is usually desired in machine learning, in our case,
@@ -335,8 +352,8 @@ region of interest is usually not relevant for this type of image:
 which part of a painting or piece of art contains the semantically
 relevant information is not obvious.
 
-Finally, an evaluation of the CNN developed by
-Gordo et al.~\cite{gordo_deep_2016} was carried out.
+Finally, an evaluation of the state-of-the-art network~\cite{gordo_deep_2016}
+was carried out.
 We used the published weights obtained in training this CNN on the
 Landmarks dataset.
 Figure~\ref{fig:incorrectimg}
@@ -352,3 +369,8 @@ Section~\ref{sec:incorrectimages}:
 
 Thus, a limitation of the current state of the art is matching
 images, where the object of interest is at different scales.
+
+The goal for our research is thus to try to overcome the limitations
+of the current state of the art by proposing a descriptor which can
+be fine-tuned to each dataset, is robust to differences in scale and
+does not require annotations of regions of interest.

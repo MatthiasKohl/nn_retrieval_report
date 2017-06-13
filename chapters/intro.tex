@@ -2,7 +2,7 @@
 
 \chapter{Introduction}
 \section{Motivation}
-The research presented here is motivated by the GUIMUTEIC project,
+The research presented here is motivated by the Guimuteic project,
 a collaborative project between industry and LIG. The
 aim is to develop a smart audio-guide for touristic or cultural sites.
 % TODO cite project/LIG/etc
@@ -19,23 +19,29 @@ only on visual clues.
 
 \section{Research problem}
 More specifically, we are interested in the following problem:
-We are given a collection with reference images for each object,
+we are given a collection with reference images for each object,
 or instance, to be recognized. The task is to develop a system that,
 given an image of one of the instances, can decide which instance
-the image represents. We assume that, on average, less than ten images
-are available for each instance.
+the image represents. We assume that, on average, less than ten reference
+images are available for each instance.
 We will refer to this problem as instance retrieval in the following.
 
 There are a few problems similar to instance retrieval. For one, there is
 the image classification problem: we are given a collection of images
-where each image is assigned a class, like dog or fridge.
+where each image is assigned a semantic class,
+such as \emph{dog} or \emph{fridge}.
 The task is to develop a system that, given an image, decides which
 class the image represents.
-This problem is of course similar if we simply consider each instance
-to be a separate class. However, in classification, we usually
-assume to have many images per class: hundreds or even thousands.
-This means our problem is closer to few-shots classification, where
-only few images are available for each class.
+This problem is of course similar to instance retrieval if we
+consider each instance to be a separate class.
+However, two main differences exist: in classification, the classes are
+usually semantic classes and one of the goals is to find a pattern shared
+by each semantic class. This is not as important when we consider a single
+object to represent a class. A consequence of this is that in classification
+we are usually given many reference images per class:
+hundreds or even thousands.
+This means our problem is closer to the few-shots classification problem,
+where only a few images are available for each class.
 
 Another similar problem is image retrieval. In image retrieval,
 we are given a collection of reference images and a query image.
@@ -52,12 +58,12 @@ instance to retrieve.
 % TODO possibly put this into different section
 Finally, to allow fast evaluation of the system, our goal is to develop
 a system that provides a single descriptor for each image, which should
-be small enough to easily be stored for all reference images and fast
+be small enough to be easily stored for all reference images and fast
 to compute.
 Two images should be compared according to a distance metric, which should
 also be fast to compute. This requirement is important, since a possible
-device used as an augment audio-guide will record many images per second,
-so to be responsive, it should be possible to evaluate the system in
+device used as an augmented audio-guide will record many images per second.
+Thus, to be responsive, it should be possible to evaluate the system in
 real-time or close to real-time.
 
 % TODO possibly elaborate here
@@ -65,15 +71,15 @@ real-time or close to real-time.
 \section{Challenges}
 For all of the problems described above, deep learning approaches
 based on convolutional neural networks (CNNs) have recently obtained
-the state-of-the-art results. One of the drawbacks of CNNs is that
+the state-of-the-art results. One of the drawbacks of deep CNNs is that
 they require large amounts of data to be trained.
 
 In our research problem in particular, we do not
-have large enough amounts of data available to fully train a CNN.
+have large enough amounts of data available to fully train a deep CNN.
 However, we aim to develop a system that can learn a descriptor
 specific to the reference images,
 as the system only needs to recognize and differentiate between
-instances of that particular dataset. So the system should be tuned to
+instances of that particular dataset. Thus the system should be tuned to
 the dataset. Since we usually have less than ten images per instance,
 this is an important challenge to overcome.
 
@@ -82,9 +88,9 @@ able to find similar datasets in the literature, with only a few,
 clean images, for each instance and many instances.
 Common datasets in image retrieval like Oxford5k, Paris6k or Holidays
 ~\cite{philbin_object_2007,philbin_lost_2008,jegou_hamming_2008}
-contain many images per instance, but a lot of noise,
+contain many images per instance, as well as a lot of noise,
 as they are used to evaluate whether a system can robustly retrieve the
-correct images out of a set of random images.
+correct images out of a set of weakly related images.
 This means that the approaches used for image retrieval datasets may
 not work as well for instance retrieval.
 
@@ -94,6 +100,11 @@ We made the following three major contributions:
     \item We analyze existing approaches to image retrieval, classification
     and determine their shortcomings in our problem setting.
     \item Based on these shortcomings, we propose a novel approach
-    to improve results in our problem setting.
-    \item We evaluate the novel approach and compare with other approaches.
+    to improve results in our problem setting. This approach is detailed
+    in Section~\ref{sec:proposed}. It is based on
+    extracting region proposals from images through a fully convolutional
+    network (FCN), combined with the previous state-of-the-art architecture
+    in image retrieval.
+    \item We evaluate this novel approach and compare with previously
+    proposed approaches.
 \end{enumerate}

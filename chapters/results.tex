@@ -12,8 +12,8 @@ research.
 \hline & Time (h) & GPU memory (MiB)\\
 \hline \emph{AlexNet IN} & 0 & 0\\
 \hline \emph{ResNet-152 IN} & 0 & 0\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016}} & 0 & 0\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (multi-resolution)}
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50)} & 0 & 0\\
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res)}
 & 0 & 0\\
 \hline \emph{AlexNet FT} & 1.429 & 1706\\
 \hline \emph{ResNet-152 FT} & 1.621 & 6910\\
@@ -44,9 +44,9 @@ and 49h for AlexNet, using our larger dataset with over 3000 images.
 \hline & Time (ms) & GPU memory (MiB)\\
 \hline \emph{AlexNet IN} & 1.14 & 850\\
 \hline \emph{ResNet-152 IN} & 23.9 & 972\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016}} & 200 & N/A\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (multi-resolution)}
-& 900 & N/A\\
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50)} & 200 & N/A\\
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res)}
+& 922 & N/A\\
 \hline \emph{AlexNet FT} & 4.6 & 1012\\
 \hline \emph{ResNet-152 FT} & 26.1 & 944\\
 \hline \emph{Proposed AlexNet} & 12.3 & 1116\\
@@ -62,8 +62,12 @@ Table~\ref{tab:perftest} shows the performance of the different networks
 when evaluating on a single image. For the baseline based on SIFT, no performance measures were available.
 For the Gordo et al.~\cite{gordo_deep_2016} baseline, we simply took the
 measurements from their paper, performed on a slightly different system,
-as we only have a slower version of the model available, which does not
-evaluate the entire system on GPU, and is thus about 10 times slower.
+as we could only test a slower version of the model, which does not
+evaluate the entire system on GPU, and is thus about 10 times slower than
+what was reported in the paper.
+For the results of the multi-resolution system, we scale the time
+by a factor measured by this slower version between the multi-resolution
+and the normal system.
 
 We can see from Table~\ref{tab:perftest} that all networks
 of the same architecture have approximately the same performance, with
@@ -77,8 +81,16 @@ This means that the proposed AlexNet architecture can be evaluated in
 real-time and the proposed ResNet152 almost in real-time on a suitable
 server.
 Note that this real-time performance may not be possible with the current
-state-of-the-art in mobile computing, but it may be an indication of
+state of the art in mobile computing, but it may be an indication of
 what will be possible in future mobile platforms.
+
+The difference in performance can be mostly explained by the
+differences in image
+sizes used by the various systems. While a fine-tuned network uses
+images of size $224 \times 224$, the proposed network uses images
+with smaller side $448$ for ResNet-152 or $384$ for AlexNet and the
+system by Gordo et al. uses images with smaller side $800$ and $550$,
+$800$ and $1050$ for the multi-resolution version.
 
 \section{Evaluation results}\label{sec:evalresults}
 In this section, we present the results obtained on the presented datasets
@@ -91,9 +103,9 @@ as various other approaches.
 \multicolumn{2}{c|}{\emph{Mean Average Precision}}\\
 \hline & \emph{CLICIDE} & \emph{GaRoFou} & \emph{CLICIDE} & \emph{GaRoFou}\\
 \hline \emph{SIFT} & 70.08 & 78.82 & N/A & N/A\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016}}
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50)}
 & 90.30 & 95.65 & 65.49 & 88.43\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (multi-resolution)}
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res)}
 & 92.73 & 95.65 & 70.36 & 89.32\\
 \hline \emph{AlexNet IN} & 72.73 & 85.87 & 32.71 & 66.11\\
 \hline \emph{AlexNet FT} & 78.18 & 90.76 & 38.51 & 72.92\\
@@ -111,7 +123,7 @@ as various other approaches.
 \end{tabular}
 \caption{Evaluation results for the CLICIDE and GaRoFou datasets.
 The results are expressed in percentage points of
-Mean Precision@1 and mean average precision (only indicative)
+mean precision@1 and mean average precision (only indicative)
 \label{tab:results}}
 \end{table}
 
@@ -154,19 +166,20 @@ descriptors along with the mean precision@1.
 From the baselines presented in Section~\ref{sec:baselines}, we can make
 two observations. First, even a simple global descriptor obtained from the
 convolutional features of a CNN pre-trained on ImageNet performs better
-than matching local SIFT descriptors on our datasets. Second, the network
+than matching local SIFT descriptors on our datasets. Second, the ResNet-50
 proposed by Gordo et al.~\cite{gordo_deep_2016} out-performs the descriptors
 from pre-trained networks by far, even though it has never seen the images
 from our datasets during training, either.
 
 Table~\ref{tab:results} confirms these observations when taking into
-account the mean average precision of the network proposed Gordo et al.
+account the mean average precision of the ResNet-50
 and the convolutional features of networks pre-trained on ImageNet.
-The difference is striking, with more than 10 points gained in mean
+The difference is more than 10 points gained in mean
 average precision even when comparing against the ResNet architecture.
-This means that the network proposed by Gordo et al. captures the
+This means that a ResNet fine-tuned for image matching captures the
 visual information much better than just the convolutional features
-of a pre-trained network. This is expected, since that was one of the
+of a ResNet pre-trained on image classification.
+This is expected, since that was one of the
 goals of the approach proposed by Gordo et al.~\cite{gordo_deep_2016}.
 
 Another observation we can make from Table~\ref{tab:results} is that
@@ -184,28 +197,31 @@ simplified Siamese architecture (fine-tuning with a triplet loss),
 it is not as clear which one performs better.
 From the results, we can see that the classification fine-tuning has a better
 performance for AlexNet while the triplet loss fine-tuning has a better
-performance for ResNet. This is most likely due to two factors: the
+performance for ResNet-152. This is most likely due to two factors: the
 hyper-parameters when training the Siamese AlexNet were not perfectly
 suited, hence the convergence behavior is not as good as with the Siamese
 ResNet. Furthermore, the AlexNet fine-tuned for classification has a much
 larger descriptor of dimension 9216 versus the descriptor of dimension
 2048 of the simplified Siamese architecture. This may explain that
-the simplified Siamese architecture performs worse in this case.
+the simplified Siamese architecture performs worse for AlexNet and
+better for ResNet-152.
 
 Finally, when comparing the proposed architecture with the previous ones,
 it is clear that the proposed architecture out-performs all of them.
-It achieves much higher precision@1 as well as higher mean average precision,
+It achieves higher precision@1 as well as higher mean average precision,
 especially when combined with the instance feature augmentation as described
-in Section~\ref{sec:ifa}. It also out-performs the network proposed by
-Gordo et al.~\cite{gordo_deep_2016}. The comparison between these two
-networks is difficult though. This is because on the on hand, our proposed
+in Section~\ref{sec:ifa}. The proposed ResNet-152 also out-performs the
+network proposed by Gordo et al.~\cite{gordo_deep_2016}, based on a ResNet-50.
+The comparison between these two networks is difficult though.
+This is because on the on hand, our proposed
 network is trained on the reference dataset used when comparing images,
-giving it an unfair advantage. On the other hand, the network published
-by Gordo et al. is trained on the much much larger Landmarks dataset
+giving it an unfair advantage. On the other hand, the ResNet-50
+is trained on the much much larger Landmarks dataset
 ~\cite{babenko_neural_2014}, giving it the advantage of data volume.
 As shown in Sections~\ref{sec:tripletselection}~and~\ref{sec:roi},
-the training methodology developed by Gordo et al. is not applicable
-to a small, clean dataset, such as the ones used in our evaluation.
+the training methodology developed by Gordo et al.~\cite{gordo_end--end_2017}
+is not applicable to a small, clean dataset, such as the ones used in our
+evaluation.
 
 A surprising result is the result given by instance feature augmentation as
 described in Section~\ref{sec:ifa}. While the mean average precision is
@@ -214,3 +230,10 @@ margin, the mean precision@1 is slightly lower. This may show that the
 proposed network matched some outliers correctly, while the descriptors
 produced by instance feature augmentation are more robust overall.
 However, we do not have a more detailed explanation of this result as of now.
+
+Note that the difference in mean average precision between the ResNet-50
+by Gordo et al.~\cite{gordo_deep_2016} and the proposed ResNet-152 are
+statistically significant, confirmed by a paired student's t-test with
+$p$-value $p<0.001$. This is valid for both versions of the proposed
+ResNet-152, including IFA or not, compared to both versions of the
+ResNet-50, multi-resolution or not.
