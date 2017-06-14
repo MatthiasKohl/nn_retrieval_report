@@ -35,7 +35,9 @@ improvements for descriptors used in image retrieval and propose
 an adaption of database feature augmentation to the instance retrieval problem.
 
 \section{Fine-tuning a CNN}\label{sec:finetuning}
-A first possible approach to this problem is to fine-tune
+The main difference between image classification and image retrieval is the amount of data and their variability. In classification, we rely on large amounts of data, with high inter-class variability. This allows us to train a deep CNN with millions of parameters. In image retrieval or identification, as we want to identify a particular instance, the variability of examples of that instance is less important. This means the data is usually not sufficient to train a network like ResNet.
+
+In order to overcome this problem, a first possible approach is to fine-tune
 a classification network to instance classification. This means that
 we consider each instance as a class, and optimize using a cross-entropy
 loss, typical for classification.
@@ -68,11 +70,14 @@ described in the following sections.
 
 \subsection{Data augmentation}
 Our datasets, presented in Section~\ref{sec:datasets},
-contain an average of less than 10 samples per instance. This is too little
-to train a typical CNN model designed for classification, even when
-fine-tuning.
-One way to overcome this is to augment the data, by randomly applying
+contain an average of less than 10 samples per instance.
+This makes training a typical CNN model difficult,
+even when fine-tuning for classification.
+Data augmentation consists of randomly applying
 affine transformations, color perturbations and other random transformations.
+It can help in obtaining a more robust network, with higher
+geometry invariance than if the network is trained without data
+augmentation.
 % TODO possibly reference some paper here
 
 Since we specifically identified an issue related to different scales
@@ -80,8 +85,9 @@ in images in Sections~\ref{sec:limitations}~and~\ref{sec:incorrectimages},
 it it natural to augment the data by randomly scaling the images in both
 dimensions.
 
-We found that randomly rotating and flipping the images improved
-performance as well, thus we perform this type of data augmentation
+The lack of geometry invariance of the model can also be reduced by
+randomly rotating and flipping the images,
+thus we perform this type of data augmentation
 throughout our experiments.
 
 For data augmentation in order to fine-tune a CNN, we use the
@@ -592,7 +598,7 @@ the FCN.
 \end{equation}
 
 In our experiments, we choose the number of regions with highest maximal
-activation to be $k=4$ and the regularization hyper-parameter $\alpha=1.0$.
+activation to be $k=6$ and the regularization hyper-parameter $\alpha=1.0$.
 The margin of the triplet loss is $m=0.1$ as described in
 Section~\ref{sec:simplifiedsiam}.
 
