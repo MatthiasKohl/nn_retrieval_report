@@ -35,7 +35,10 @@ improvements for descriptors used in image retrieval and propose
 an adaption of database feature augmentation to the instance retrieval problem.
 
 \section{Fine-tuning a CNN}\label{sec:finetuning}
-The main difference between image classification and image retrieval is the amount of data and their variability. In classification, we rely on large amounts of data, with high inter-class variability. This allows us to train a deep CNN with millions of parameters. In image retrieval or identification, as we want to identify a particular instance, the variability of examples of that instance is less important. This means the data is usually not sufficient to train a network like ResNet.
+In image classification using deep CNNs, we rely on large amounts of data, with high inter-class variability in order to infer the optimal values for
+millions of parameters. These parameters allow the CNN to describe the
+patterns that an image consists of, from the lowest abstraction layer to
+the highest. In the instance search problem, as we want to identify a particular instance, the variability of examples of that instance is less important. This means the data is usually not sufficient to fully optimize a network like ResNet.
 
 In order to overcome this problem, a first possible approach is to fine-tune
 a classification network to instance classification. This means that
@@ -81,8 +84,8 @@ augmentation.
 % TODO possibly reference some paper here
 
 Since we specifically identified an issue related to different scales
-in images in Sections~\ref{sec:limitations}~and~\ref{sec:incorrectimages},
-it it natural to augment the data by randomly scaling the images in both
+in images in Section~\ref{sec:limitations} and Section~\ref{sec:incorrectimages},
+it is natural to augment the data by randomly scaling the images in both
 dimensions.
 
 The lack of geometry invariance of the model can also be reduced by
@@ -115,6 +118,8 @@ For a ResNet architecture, we re-train all layers above and including the
 third to last block of convolutional layers. This contains the
 nine highest convolutional layers in total.
 
+The results obtained by transfer learning are listed in Table~\ref{tab:results} in chapter~\ref{chap:results}, abbreviated by \emph{FT}.
+
 \section{Simplified Siamese architecture}\label{sec:simplifiedsiam}
 We propose a simplified Siamese architecture inspired by the methodology
 of Gordo et al.~\cite{gordo_deep_2016}. As shown in
@@ -135,9 +140,19 @@ to the loss, which describes the distance at which two images are
 considered similar enough to be relevant with respect to each other.
 Throughout our experiments, this margin is set to a value of $m=0.1$.
 
+In image retrieval, many approaches use $l2$-normalized descriptors
+~\cite{jegou_hamming_2008,jegou_aggregating_2010,tolias_particular_2015,gordo_deep_2016} since this improves performance and facilitates comparison
+between two descriptors. We choose to use $l2$-normalization as well,
+which enables us to re-write the triplet loss.
+
 For normalized descriptors $x$ and $y$, the squared distance $\| x - y \|_2^2$
 is closely related to the cosine similarity and the dot product through
-the relationship derived in Equation~\ref{eq:sqdistcosdot}.
+the relationship derived in Equation~\ref{eq:sqdistcosdot}. One consequence
+of this equation is that comparing descriptors based on dot product,
+cosine similarity and squared distance is closely related: a high value
+of the dot product, high value of cosine similarity and a low value of
+the squared distance are all equivalent up to a constant factor and
+constant shift.
 
 \begin{equation}\label{eq:sqdistcosdot}
 \begin{array}{ll}
@@ -149,10 +164,9 @@ the relationship derived in Equation~\ref{eq:sqdistcosdot}.
 \end{array}
 \end{equation}
 
-With this Equation, we can re-write the triplet loss for normalized descriptors
-using the dot product, as shown in Equation~\ref{eq:tripletlossnorm}.
+Another consequence of Equation~\ref{eq:sqdistcosdot} is that we can re-write the triplet loss using the dot product, as shown in Equation~\ref{eq:tripletlossnorm}.
 This equation represents the version of the triplet loss used in
-our experiments. This means all descriptors must be normalized before
+our experiments. This means all descriptors must be $l2$-normalized before
 the loss is evaluated.
 
 \begin{equation}\label{eq:tripletlossnorm}
@@ -215,37 +229,11 @@ Hence, in our experiments, we choose the semi-hard triplet selection
 for the first two passes over the dataset, after which we only choose
 the hardest negatives for all positive couples.
 
+The results obtained by this simplified Siamese architecture, using semi-hard
+triplet selection, are listed in Table~\ref{tab:results} in chapter~\ref{chap:results}, abbreviated by \emph{SS}.
+
 \section{Region of interests and object localization}\label{sec:analysisprev}
 \subsection{Identifying regions of interest}\label{sec:roi}
-Previous approaches in image retrieval
-~\cite{gordo_end--end_2017,salvador_faster_2016,tolias_particular_2015}
-usually deal with regions of interest in one way or another.
-The idea is that in most cases, only certain parts of each image can
-be useful for comparison with other images. In addition to this,
-cropping images at their regions of interest can help with differences
-in scale of the images to compare: if a building is visible only in a small
-part of an image, cropping the image at that part and then re-scaling
-the part should set the building at a normalized scale.
-
-However, in instance search with museum datasets, it is not obvious
-where the regions of interest should be: most images represent an entire
-painting or parts of it and only some may contain the painting as part
-of the image with a wall in the background. This means for most images,
-the ground-truth region of interest is simply the entire image, and some
-may have a ground-truth region of interest which is almost the entire image,
-excluding only a small part of the background.
-
-On the other hand, a network fine-tuned on classification on such a dataset
-should be able to easily identify the region containing the painting, since
-the background wall is contained in almost all classes, which means it is a
-particularly bad indicator of the class. Thus, if the network is applied in
-a strided manner across an image, it should produce low maximal activations
-in parts containing big sections of background wall. This idea of using a
-network fine-tuned on classification as a predictor of regions of interest
-has already been investigated by Oquab et al.~\cite{oquab_is_2015}. They
-show that a CNN can predict approximate locations of objects using a
-multi-scale sliding window training.
-
 \begin{figure}
 \centering
 \begin{subfigure}[b]{0.3\textwidth}
@@ -293,6 +281,35 @@ strided manner, as well as the labels of all maximal activations that are
 greater than the mean maximal activation\label{fig:heatmaps}}
 \end{figure}
 
+Previous approaches in image retrieval
+~\cite{gordo_end--end_2017,salvador_faster_2016,tolias_particular_2015}
+usually deal with regions of interest in one way or another.
+The idea is that in most cases, only certain parts of each image can
+be useful for comparison with other images. In addition to this,
+cropping images at their regions of interest can help with differences
+in scale of the images to compare: if a building is visible only in a small
+part of an image, cropping the image at that part and then re-scaling
+the part should set the building at a normalized scale.
+
+However, in instance search with museum datasets, it is not obvious
+where the regions of interest should be: most images represent an entire
+painting or parts of it and only some may contain the painting as part
+of the image with a wall in the background. This means for most images,
+the ground-truth region of interest is simply the entire image, and some
+may have a ground-truth region of interest which is almost the entire image,
+excluding only a small part of the background.
+
+On the other hand, a network fine-tuned on classification on such a dataset
+should be able to easily identify the region containing the painting, since
+the background wall is contained in almost all classes, which means it is a
+particularly bad indicator of the class. Thus, if the network is applied in
+a strided manner across an image, it should produce low maximal activations
+in parts containing big sections of background wall. This idea of using a
+network fine-tuned on classification as a predictor of regions of interest
+has already been investigated by Oquab et al.~\cite{oquab_is_2015}. They
+show that a CNN can predict approximate locations of objects using a
+multi-scale sliding window training.
+
 Figure~\ref{fig:heatmaps} shows images, along with the heat map
 representing the maximal activation of a fine-tuned ResNet-152 at
 each coordinate, when the network is applied in a strided manner
@@ -333,91 +350,95 @@ of location of the query objects.
 \begin{figure}
 \centering
 \begin{subfigure}{\textwidth}
-\begin{tabular}{|c|*{6}{c}}
+\begin{tabular}{!{\vrule width 2pt}c!{\color{green}\vrule width 2pt}c!{\color{green}\vrule width 2pt}*{5}{c}}
 \includegraphics[width=0.12\textwidth]{img/11J-0521.JPG} &
-\includegraphics[width=0.12\textwidth]{img/11J-0.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11J-4.JPG} &
 \includegraphics[width=0.12\textwidth]{img/11J-1.JPG} &
 \includegraphics[width=0.12\textwidth]{img/11J-2.JPG} &
 \includegraphics[width=0.12\textwidth]{img/11J-3.JPG} &
-\includegraphics[width=0.12\textwidth]{img/11J-4.JPG} \\
+\includegraphics[width=0.12\textwidth]{img/11J-0.JPG} \\
 \end{tabular}
-\caption{Correctly identified query with label 11J,
-along with its reference images.\newline
-Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50): 1.0,
+\caption{Correctly identified query
+along with the best match and all other possible reference images.\newline
+Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res): 1.0,
 fine-tuned ResNet-152: 1.0
 \label{fig:correct11J}}
 \end{subfigure}
 
 \begin{subfigure}{\textwidth}
-\begin{tabular}{|c|*{6}{c}}
+\begin{tabular}{!{\vrule width 2pt}c!{\color{green}\vrule width 2pt}c!{\color{green}\vrule width 2pt}*{5}{c}}
 \includegraphics[width=0.12\textwidth]{img/23D-0740.JPG} &
-\includegraphics[width=0.12\textwidth]{img/23D-0.JPG} &
-\includegraphics[width=0.12\textwidth]{img/23D-1.JPG} &
 \includegraphics[width=0.12\textwidth]{img/23D-2.JPG} &
+\includegraphics[width=0.12\textwidth]{img/23D-1.JPG} &
+\includegraphics[width=0.12\textwidth]{img/23D-0.JPG} &
 \includegraphics[width=0.12\textwidth]{img/23D-3.JPG} &
 \includegraphics[width=0.12\textwidth]{img/23D-4.JPG} &
 \includegraphics[width=0.12\textwidth]{img/23D-5.JPG} \\
 \end{tabular}
-\caption{Correctly identified query with label 23D,
-along with its reference images.\newline
-Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50): 1.0,
+\caption{Correctly identified query,
+along with the best match and all other possible reference images.\newline
+Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res): 1.0,
 fine-tuned ResNet-152: 1.0
 \label{fig:correct23D}}
 \end{subfigure}
 
 \begin{subfigure}{\textwidth}
-\begin{tabular}{|c|*{6}{c}}
+\begin{tabular}{!{\vrule width 2pt}c!{\color{red}\vrule width 2pt}c!{\color{red}\vrule width 2pt}*{5}{c}}
 \includegraphics[width=0.12\textwidth]{img/1C-0454.JPG} &
+\includegraphics[width=0.12\textwidth]{img/1C-0454-36A-1.JPG} &
 \includegraphics[width=0.12\textwidth]{img/1C-0.JPG} &
 \includegraphics[width=0.12\textwidth]{img/1C-1.JPG} &
 \includegraphics[width=0.12\textwidth]{img/1C-2.JPG} &
 \includegraphics[width=0.12\textwidth]{img/1C-3.JPG} &
 \includegraphics[width=0.12\textwidth]{img/1C-4.JPG} \\
 \end{tabular}
-\caption{Incorrectly identified query with label 1C,
-along with its reference images.\newline
-Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50): 0.113,
+\caption{Incorrectly identified query
+along with the best match and all possible reference images.\newline
+Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res): 0.113,
 fine-tuned ResNet-152: 0.014
 \label{fig:incorrect1C}}
 \end{subfigure}
 
 \begin{subfigure}{\textwidth}
-\begin{tabular}{|c|*{6}{c}}
+\begin{tabular}{!{\vrule width 2pt}c!{\color{red}\vrule width 2pt}c!{\color{red}\vrule width 2pt}*{5}{c}}
 \includegraphics[width=0.12\textwidth]{img/5B-0506.JPG} &
+\includegraphics[width=0.12\textwidth]{img/5B-0506-16M-0.JPG} &
 \includegraphics[width=0.12\textwidth]{img/5B-0.JPG} &
 \includegraphics[width=0.12\textwidth]{img/5B-1.JPG} &
 \includegraphics[width=0.12\textwidth]{img/5B-2.JPG} &
 \includegraphics[width=0.12\textwidth]{img/5B-3.JPG} &
 \includegraphics[width=0.12\textwidth]{img/5B-4.JPG} \\
 \end{tabular}
-\caption{Incorrectly identified query with label 5B,
-along with its reference images.\newline
-Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50): 0.013,
+\caption{Incorrectly identified query
+along with the best match and all possible reference images.\newline
+Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res): 0.013,
 fine-tuned ResNet-152: 0.002
 \label{fig:incorrect5B}}
 \end{subfigure}
 
 \begin{subfigure}{\textwidth}
-\begin{tabular}{|c|*{6}{c}}
+\begin{tabular}{!{\vrule width 2pt}c!{\color{red}\vrule width 2pt}c!{\color{red}\vrule width 2pt}*{5}{c}}
 \includegraphics[width=0.12\textwidth]{img/11C-0351.JPG} &
+\includegraphics[width=0.12\textwidth]{img/11C-0351-6D-0.JPG} &
 \includegraphics[width=0.12\textwidth]{img/11C-0.JPG} &
 \includegraphics[width=0.12\textwidth]{img/11C-1.JPG} &
 \includegraphics[width=0.12\textwidth]{img/11C-2.JPG} &
 \includegraphics[width=0.12\textwidth]{img/11C-3.JPG} &
 \includegraphics[width=0.12\textwidth]{img/11C-4.JPG} \\
 \end{tabular}
-\caption{Incorrectly identified query with label 11C,
-along with its reference images.\newline
-Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50): 0.004,
+\caption{Incorrectly identified query
+along with the best match and all possible reference images.\newline
+Average precision Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res): 0.004,
 fine-tuned ResNet-152: 0.004
 \label{fig:incorrect11C}}
 \end{subfigure}
 \caption{Sample images that were correctly and incorrectly identified
 by a fine-tuned ResNet-152, as well as the modified ResNet-50 published by
-Gordo et al.~\cite{gordo_deep_2016}. For each image,
-the query image is shown at the very left and all possible correct reference
+Gordo et al.~\cite{gordo_deep_2016} using images at multiple resolutions. For each image,
+the query image is shown at the very left, the best match of the ResNet-50 is shown next to it with green bars indicating a correct match, red bars indicating a wrong match, and all possible correct reference
 images are shown to the right of the query. The caption contains the
 associated average precision values.
+Note that this figure is best viewed in color.
 \label{fig:incorrectimg}}
 \end{figure}
 
@@ -436,7 +457,7 @@ Combining both of the properties identified in this section, we
 propose a novel approach to learn a strong descriptor for instance
 search in the next section.
 
-\section{Proposed approach}\label{sec:proposed}
+\section{Proposed instance search architecture}\label{sec:proposed}
 The proposed approach is based on multiple steps as described in the
 following sections.
 
@@ -506,8 +527,10 @@ random noise on the smaller side of images with high aspect ratios.
 
 In our experiments, we use a maximal aspect ratio of $2.0$ and images
 at two scales of $448$ and $224$ pixels for the smaller side. We found
-that the AlexNet architecture did not have good convergence behavior,
-thus we used scales of $384$ and $224$ instead.
+that the AlexNet architecture did not have good convergence behavior.
+This is most likely due to the worse generalization property of AlexNet
+as compared to ResNet and the large number of patches in an image with
+smaller side $448$. Thus, for AlexNet we used scales of $384$ and $224$ instead.
 
 \subsubsection{Gradient descent using micro-batches}
 Since only a single image is passed to the network at a time, the
@@ -602,6 +625,8 @@ activation to be $k=6$ and the regularization hyper-parameter $\alpha=1.0$.
 The margin of the triplet loss is $m=0.1$ as described in
 Section~\ref{sec:simplifiedsiam}.
 
+The results obtained by the proposed approach are listed in Table~\ref{tab:results} in chapter~\ref{chap:results}.
+
 \subsection{Advantages and limitations}
 As shown in Section~\ref{sec:analysisprev}, this approach
 allows the network to decide which region of interest is
@@ -637,7 +662,7 @@ meaningful, it is thus important that the training images contain only
 \emph{meaningful} representations of instances and that they are
 correctly labeled with respect to those instances.
 
-\section{Additional improvements of descriptors}\label{sec:improvedesc}
+\section{Augmenting image descriptors}\label{sec:improvedesc}
 Up to this point, we consider each approach
 as if it provides a single, strong descriptor for each image.
 In information retrieval, many approaches combine descriptors,
@@ -730,3 +755,6 @@ neighbors being all descriptors of reference images of the same instance.
 For each descriptor, the average is weighted by the rank of the other
 descriptors in comparison to it. Finally, the resulting descriptor
 is normalized again.
+
+The results obtained by instance feature augmentation are listed in Table~\ref{tab:results} in chapter~\ref{chap:results}, abbreviated by \emph{IFA}.
+

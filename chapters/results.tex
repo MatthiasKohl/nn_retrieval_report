@@ -1,8 +1,65 @@
 % !TeX root = ../full_report.tex
 
-\chapter{Results}
+\chapter{Results}\label{chap:results}
 In this section, we present the experimental results obtained in our
 research.
+
+\section{Evaluation results}\label{sec:evalresults}
+In this section, we present the results obtained on the presented datasets
+using our network as described in Section~\ref{sec:proposed}, as well
+as various other approaches.
+
+\begin{table}
+\centering
+\begin{tabular}{|l|c|c||c|c|}
+\hline & \multicolumn{2}{c||}{\emph{Mean Precision@1}} &
+\multicolumn{2}{c|}{\emph{Mean Average Precision}}\\
+\hline & \emph{CLICIDE} & \emph{GaRoFou} & \emph{CLICIDE} & \emph{GaRoFou}\\
+\hline \emph{SIFT} & 70.08 & 78.82 & N/A & N/A\\
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50)}
+& 90.30 & 95.65 & 65.49 & 88.43\\
+\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res)}
+& 92.73 & 95.65 & 70.36 & 89.32\\
+\hline \emph{AlexNet IN} & 72.73 & 85.87 & 32.71 & 66.11\\
+\hline \emph{ResNet-152 IN} & 72.12 & 85.33 & 40.99 & 70.15\\
+\hline
+\hline \emph{AlexNet FT} & 78.18 & 90.76 & 38.51 & 72.92\\
+\hline \emph{AlexNet SS} & 75.76 & 90.20 & 36.20 & 77.73\\
+\hline \emph{Proposed AlexNet} & 81.21 & 83.15 & 45.53 & 71.71\\
+\hline \emph{Proposed AlexNet (IFA)} & 80.61 & 82.61 & 71.02 & 81.66\\
+\hline \emph{ResNet-152 FT} & 79.39 & 94.57 & 75.11 & 93.44\\
+\hline \emph{ResNet-152 SS} & 85.45 & 95.11 & 83.00 & 91.90\\
+\hline \emph{Proposed ResNet-152} & \textbf{94.55} & \textbf{96.20}
+& 82.94 & 91.83\\
+\hline \emph{Proposed ResNet-152 (IFA)} & 93.94 & 95.11
+& \textbf{94.23} & \textbf{93.86}\\
+\hline
+\end{tabular}
+\caption{Evaluation results for the CLICIDE and GaRoFou datasets.
+The results are expressed in percentage points of
+mean precision@1 and mean average precision (only indicative)
+\label{tab:results}}
+\end{table}
+
+Table~\ref{tab:results} gives an overview of the results obtained. First,
+the baselines established in Section~\ref{sec:baselines} are shown
+again. Additionally, we show the relevant results obtained by fine-tuning
+a classification network, abbreviated by FT in the table. This method
+is described in Section~\ref{sec:finetuning}. We then show the results
+obtained by a simplified Siamese architecture, as described in Section
+~\ref{sec:simplifiedsiam}, abbreviated SS. Finally, we show the results
+obtained by the proposed network as described in Section~\ref{sec:proposed}.
+In addition to the mean precision@1, we show the mean average
+precision obtained by the different approaches.
+
+In Table~\ref{tab:results}, all descriptors have dimension 2048, except
+for the AlexNet IN and AlexNet FT methods. As described in
+Section~\ref{sec:baselines}, these descriptors have dimension 9216,
+since they consist of the convolutional features of an
+AlexNet architecture.
+
+In Table~\ref{tab:results}, \emph{IFA} refers to the results obtained
+using instance feature augmentation, as presented in Section~\ref{sec:ifa}.
 
 \section{Performance}\label{sec:perfresults}
 
@@ -11,18 +68,21 @@ research.
 \begin{tabular}{|l|c|c|}
 \hline & \multicolumn{2}{c|}{\emph{CLICIDE training}}\\
 \hline & Time (h) & GPU memory (MiB)\\
-\hline \emph{AlexNet IN} & 0 & 0\\
-\hline \emph{ResNet-152 IN} & 0 & 0\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50)} & 0 & 0\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res)}
 & 0 & 0\\
+\hline \emph{AlexNet IN} & 0 & 0\\
+\hline \emph{ResNet-152 IN} & 0 & 0\\
+\hline
 \hline \emph{AlexNet FT} & 1.429 & 1706\\
-\hline \emph{ResNet-152 FT} & 1.621 & 6910\\
+\hline \emph{AlexNet SS} & 9.985 & 1720\\
 \hline \emph{Proposed AlexNet} & 49.06 & 1956\\
+\hline \emph{ResNet-152 FT} & 1.621 & 6910\\
+\hline \emph{ResNet-152 SS} & 12.59 & 9332\\
 \hline \emph{Proposed ResNet-152} & 86.62 & 10494\\
 \hline
 \end{tabular}
-\caption{Performance of different approaches in terms of time in seconds and
+\caption{Performance of different approaches in terms of time in hours and
 maximal GPU memory usage in MB when training on the CLICIDE dataset
 \label{tab:perftrain}}
 \end{table}
@@ -44,19 +104,22 @@ and 49h for AlexNet, using our larger dataset with over 3000 images.
 \begin{tabular}{|l|c|c|}
 \hline & \multicolumn{2}{c|}{\emph{CLICIDE test per image}}\\
 \hline & Time (ms) & GPU memory (MiB)\\
-\hline \emph{AlexNet IN} & 1.14 & 850\\
-\hline \emph{ResNet-152 IN} & 23.9 & 972\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50)} & 200 & N/A\\
 \hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res)}
 & 922 & N/A\\
+\hline \emph{AlexNet IN} & 1.14 & 850\\
+\hline \emph{ResNet-152 IN} & 23.9 & 972\\
+\hline
 \hline \emph{AlexNet FT} & 4.6 & 1012\\
-\hline \emph{ResNet-152 FT} & 26.1 & 944\\
+\hline \emph{AlexNet SS} & 6.27 & 800\\
 \hline \emph{Proposed AlexNet} & 12.3 & 1116\\
+\hline \emph{ResNet-152 FT} & 26.1 & 944\\
+\hline \emph{ResNet-152 SS} & 27.6 & 1754\\
 \hline \emph{Proposed ResNet-152} & 45.2 & 2212\\
 \hline
 \end{tabular}
-\caption{Performance of different approaches in terms of time in seconds and
-maximal GPU memory usage in MB when testing on a single image
+\caption{Performance of different approaches in terms of average time in milliseconds and
+maximal GPU memory usage in MB when extracting the descriptor of a single image
 of the CLICIDE dataset\label{tab:perftest}}
 \end{table}
 
@@ -94,63 +157,7 @@ with smaller side $448$ for ResNet-152 or $384$ for AlexNet and the
 system by Gordo et al. uses images with smaller side $800$ and $550$,
 $800$ and $1050$ for the multi-resolution version.
 
-\section{Evaluation results}\label{sec:evalresults}
-In this section, we present the results obtained on the presented datasets
-using our network as described in Section~\ref{sec:proposed}, as well
-as various other approaches.
-
-\begin{table}
-\centering
-\begin{tabular}{|l|c|c||c|c|}
-\hline & \multicolumn{2}{c||}{\emph{Mean Precision@1}} &
-\multicolumn{2}{c|}{\emph{Mean Average Precision}}\\
-\hline & \emph{CLICIDE} & \emph{GaRoFou} & \emph{CLICIDE} & \emph{GaRoFou}\\
-\hline \emph{SIFT} & 70.08 & 78.82 & N/A & N/A\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50)}
-& 90.30 & 95.65 & 65.49 & 88.43\\
-\hline \emph{Gordo et al.~\cite{gordo_deep_2016} (ResNet-50, multi-res)}
-& 92.73 & 95.65 & 70.36 & 89.32\\
-\hline \emph{AlexNet IN} & 72.73 & 85.87 & 32.71 & 66.11\\
-\hline \emph{AlexNet FT} & 78.18 & 90.76 & 38.51 & 72.92\\
-\hline \emph{AlexNet SS} & 75.76 & 90.20 & 36.20 & 77.73\\
-\hline \emph{Proposed AlexNet} & 81.21 & 83.15 & 45.53 & 71.71\\
-\hline \emph{Proposed AlexNet (IFA)} & 80.61 & 82.61 & 71.02 & 81.66\\
-\hline \emph{ResNet-152 IN} & 72.12 & 85.33 & 40.99 & 70.15\\
-\hline \emph{ResNet-152 FT} & 79.39 & 94.57 & 75.11 & 93.44\\
-\hline \emph{ResNet-152 SS} & 85.45 & 95.11 & 83.00 & 91.90\\
-\hline \emph{Proposed ResNet-152} & \textbf{94.55} & \textbf{96.20}
-& 82.94 & 91.83\\
-\hline \emph{Proposed ResNet-152 (IFA)} & 93.94 & 95.11
-& \textbf{94.23} & \textbf{93.86}\\
-\hline
-\end{tabular}
-\caption{Evaluation results for the CLICIDE and GaRoFou datasets.
-The results are expressed in percentage points of
-mean precision@1 and mean average precision (only indicative)
-\label{tab:results}}
-\end{table}
-
-Table~\ref{tab:results} gives an overview of the results obtained. First,
-the baselines established in Section~\ref{sec:baselines} are shown
-again. Additionally, we show the relevant results obtained by fine-tuning
-a classification network, abbreviated by FT in the table. This method
-is described in Section~\ref{sec:finetuning}. We then show the results
-obtained by a simplified Siamese architecture, as described in Section
-~\ref{sec:simplifiedsiam}, abbreviated SS. Finally, we show the results
-obtained by the proposed network as described in Section~\ref{sec:proposed}.
-In addition to the mean precision@1, we show the mean average
-precision obtained by the different approaches.
-
-In Table~\ref{tab:results}, all descriptors have dimension 2048, except
-for the AlexNet IN and AlexNet FT methods. As described in
-Section~\ref{sec:baselines}, these descriptors have dimension 9216,
-since they consist of the convolutional features of an
-AlexNet architecture.
-
-In Table~\ref{tab:results}, \emph{IFA} refers to the results obtained
-using instance feature augmentation, as presented in Section~\ref{sec:ifa}.
-
-\subsection{Interpretation}
+\section{Interpretation}
 % TODO  possibly remove this
 The comparison of performance between different descriptors should
 be based on the mean precision@1. However, the mean average
