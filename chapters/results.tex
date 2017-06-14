@@ -179,7 +179,7 @@ account the mean average precision of the ResNet-50
 and the convolutional features of networks pre-trained on ImageNet.
 The difference is more than 10 points gained in mean
 average precision even when comparing against the ResNet architecture.
-This means that a ResNet fine-tuned for image matching captures the
+This means that a ResNet fully optimized for image matching captures the
 visual information much better than just the convolutional features
 of a ResNet pre-trained on image classification.
 This is expected, since that was one of the
@@ -219,7 +219,7 @@ The comparison between these two networks is difficult though.
 This is because on the on hand, our proposed
 network is trained on the reference dataset used when comparing images,
 giving it an unfair advantage. On the other hand, the ResNet-50
-is trained on the much much larger Landmarks dataset
+is trained on the much larger Landmarks dataset
 ~\cite{babenko_neural_2014}, giving it the advantage of data volume.
 As shown in Sections~\ref{sec:tripletselection}~and~\ref{sec:roi},
 the training methodology developed by Gordo et al.~\cite{gordo_end--end_2017}
