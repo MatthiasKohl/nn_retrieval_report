@@ -86,10 +86,10 @@ Specialization \optionB  \end{center}\vfill}
 Research project performed at LIG - MRIM\\\medskip
 Under the supervision of:\\
 Georges Quénot, Jean-Pierre Chevallet\\\medskip
-Defended before a jury composed of:\\
-Head of the jury (TODO)\\
-Jury member 1\\
-Jury member 2\\
+% Defended before a jury composed of:\\
+% Head of the jury (TODO)\\
+% Jury member 1\\
+% Jury member 2\\
 }
 \session{June \hfill 2017}
 \setcounter{tocdepth}{4}
@@ -109,24 +109,24 @@ Jury member 2\\
 \renewcommand{\abstracttextfont}{\normalfont}
 \abstractintoc
 \begin{abstract}
-Cameras in embedded devices have become ubiquitous leading to many new
-capabilities for mobile platforms. In our research, we focus on an augmented
-audio-guide for museums and tourist sites. In particular, we aim at
-developing a system capable of identifying the object of interest or
-piece of art that a user of the audio-guide is looking at using solely
-the visual clues of an image from an embedded camera in the audio-guide.
-We focus on approaches based on deep learning, since they represent the
-current state of the art in image retrieval systems.
+Our research is part of the GUIMUTEIC project, which aims at building an augmented
+audio-guide for museums or tourist sites. In particular, our goal is to
+develop a system capable of identifying a
+piece of art using solely
+the visual clues of an image provided by a camera, in order to provide
+further information about the piece of art to the user of the audio-guide.
+We focus on instance retrieval approaches based on deep learning.
 We make three main contributions:
-we analyze advantages and limitations of the current state-of-the-art
-approach, we propose a novel approach based on a combination of a fully
-convolutional network with the current state-of-the-art architecture,
-and we evaluate the performance of different approaches in depth.
+we analyze advantages and limitations of the current state of the art
+in instance retrieval,
+we propose a novel approach based on a fully
+convolutional network (FCN),
+and we evaluate the performance of these different approaches in depth.
 We show that the proposed architecture produces state-of-the-art results,
-is fast to evaluate and reasonably fast to setup for a new museum or
+is fast to run and reasonably fast to setup for a new museum or
 tourist site. The evaluation is carried out on the CLICIDE and GaRoFou
-datasets, both typical of image datasets available to museums,
-containing images of their pieces of art.
+datasets, both created in the context of the project, containing images
+of pieces of art from museums in Grenoble and Lyon.
 \end{abstract}
 \abstractintoc
 
@@ -135,6 +135,7 @@ containing images of their pieces of art.
 This work has been carried out in the context of the Guimuteic project
 funded by Fonds Européen de Développement Régional (FEDER) of région
 Auvergne Rhône-Alpes.
+
 I would like to express my sincere gratitude to Georges Quénot,
 Jean-Pierre Chevallet and Maxime Portaz for their invaluable assistance
 and comments in reviewing this report.
@@ -142,29 +143,27 @@ and comments in reviewing this report.
 
 \renewcommand\abstractname{Publication}
 \begin{abstract}
-This work developed will be submitted as a
+The work developed as part of this research project will be submitted as a
 paper to the second international workshop on egocentric perception,
 interaction and computing at ICCV 2017.
 \end{abstract}
 
 \renewcommand\abstractname{R\'esum\'e}
 \begin{abstract} \selectlanguage{French}
-Les cam\'eras sont devenus omnipr\'esentes dans les appareils \'electroniques
-mobiles. Cela cr\'ee de nombreuses nouvelles capacit\'es pour ces platformes
-mobiles. Notre travail de recherche se concentre sur un audio-guide
-augment\'e pour mus\'ees et sites touristiques. En particulier, notre but est
-de d\'evelopper un système capable d'identifier l'objet ou l'\oe{}uvre d'art
-contempl\'e par un utilisateur de l'audio-guide, en utilisant seulement
-l'image livr\'ee par une caméra incorpor\'ee dans l'audio-guide.
-Notre recherche se focalise sur les approches d'apprentissage profond.
-Nous faisons trois contributions majeures:
-l'analyse des avantages et inconv\'enients des syst\`emes
-de l'\'etat de l'art, la proposition d'une nouvelle approche bas\'ee sur la
-combinaison d'un r\'eseau enti\`erement convolutionnel (FCN)
-avec des architectures de l'\'etat de l'art,
-et l'\'evaluation de la performance des diff\'erentes
+Notre travail de recherche fait partie du projet GUIMUTEIC qui doit produire un audio-guide
+augment\'e pour des mus\'ees ou des sites touristiques. En particulier, notre objectif est
+de d\'evelopper un système d'identification automatique de l'\oe{}uvre d'art
+contempl\'e par un utilisateur de l'audio-guide, en utilisant uniquement
+une image issue d'une caméra.
+Notre recherche se focalise sur les approches d'apprentissage profond
+pour l'identification d'instances.
+Nous apportons trois contributions majeures:
+une analyse des avantages et inconv\'enients
+des solutions d'identification d'instances de l'\'etat de l'art, la proposition d'une nouvelle approche bas\'ee sur
+un r\'eseau enti\`erement convolutionnel (FCN),
+et l'\'evaluation de la performance de ces diff\'erentes
 approches. Nous montrons ainsi que l'architecture propos\'ee donne des
-r\'esultats performants tout en \'etant rapide \`a \'evaluer et raisonnablement rapide \`a mettre en place pour une nouvelle collection de mus\'ee ou site touristique. L'\'evaluation se fait sur les deux corpus d'images CLICIDE et GaRoFou, tous deux typiques de corpus d'images disponibles pour un mus\'ee, contenant des images de leurs \oe{}uvres d'art.
+r\'esultats performants tout en \'etant rapide \`a l'interrogation et raisonnablement rapide \`a mettre en place pour une nouvelle collection de mus\'ee ou site touristique. L'\'evaluation se fait sur les deux corpus d'images CLICIDE et GaRoFou, tous deux produits dans le cadre du projet, et contenant des images d'\oe{}uvres d'art d'un mus\'ee de Grenoble et de Lyon.
 \end{abstract}
 \selectlanguage{English}
 

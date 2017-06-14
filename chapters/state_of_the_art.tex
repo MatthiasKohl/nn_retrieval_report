@@ -275,10 +275,7 @@ CNN.
 Section~\ref{sec:tripletloss} describes this loss in more detail.
 
 Finally, Gordo et al. made further contributions, detailed in their
-follow-up paper~\cite{gordo_end--end_2017}. These contributions are
-presented in the following sections.
-
-\subsection{Dataset}
+follow-up paper~\cite{gordo_end--end_2017}.
 For one, an important step is to use a suitable dataset. Datasets like
 Oxford5k or Paris6k are too small for a network to learn a distance metric
 applicable to any type of image. Instead, the state of the art uses the
@@ -303,21 +300,11 @@ but is only done once for the dataset.
 The cleaned dataset is still fairly large, containing 49000 images and
 586 instances of landmarks.
 
-\subsection{Triplet selection}
-Another important step is the selection of triplets during training of
-the Siamese network. In a nutshell, choosing random triplets for training means that most triplets do not contribute to the loss at all,
-thus leading to vanishing gradients
-~\cite{schroff_facenet:_2015,weinberger_distance_2006}.
-
-Thus, different methods have been proposed to overcome this problem
-~\cite{gordo_end--end_2017,schroff_facenet:_2015}. These methods
-aim at choosing the hardest triplets, contributing the most to the loss.
-This needs to be done without being computationally too expensive
-nor choosing exclusively the hardest triplets, as this can collapse
-the model early on in training~\cite{schroff_facenet:_2015}.
-
-The different triplet selection mechanisms are detailed and discussed
-in Section~\ref{sec:tripletselection}.
+Finally, an important step in training a network on image matching
+using the triplet loss is the selection of triplets. Multiple mechanisms
+have been proposed for this purpose
+~\cite{schroff_facenet:_2015,gordo_end--end_2017}, which
+are further detailed in Section~\ref{sec:tripletselection}.
 
 \subsection{Limitations and goals}\label{sec:limitations}
 The main limitation of the state of the art with respect to instance retrieval

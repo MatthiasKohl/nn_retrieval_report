@@ -22,28 +22,29 @@ More specifically, we are interested in the following problem:
 we are given a collection with reference images for each object,
 or instance, to be recognized. The task is to develop a system that,
 given an image of one of the instances, can decide which instance
-the image represents. We assume that, on average, less than ten reference
-images are available for each instance.
+the image represents. We assume that there is little variation between
+the images of a given instance, as they all represent the same object.
 We will refer to this problem as instance retrieval in the following.
 
-There are a few problems similar to instance retrieval. For one, there is
-the image classification problem: we are given a collection of images
+There are a two problems similar to instance retrieval: image classification
+and image retrieval.
+in image classification, we are given a collection of images
 where each image is assigned a semantic class,
 such as \emph{dog} or \emph{fridge}.
 The task is to develop a system that, given an image, decides which
 class the image represents.
-This problem is of course similar to instance retrieval if we
+This problem is similar to instance retrieval if we
 consider each instance to be a separate class.
-However, two main differences exist: in classification, the classes are
-usually semantic classes and one of the goals is to find a pattern shared
+However, two main differences exist: in classification, the images
+usually represent semantic classes and contain more variability between them
+than in the instance retrieval problem, where all images of a class
+represent the exact same object.
+A consequence of this is that in classification, one of the goals is to find a pattern shared
 by each semantic class. This is not as important when we consider a single
-object to represent a class. A consequence of this is that in classification
-we are usually given many reference images per class:
-hundreds or even thousands.
-This means our problem is closer to the few-shots classification problem,
-where only a few images are available for each class.
+object to represent a class.
 
-Another similar problem is image retrieval. In image retrieval,
+The second problem similar to instance retrieval is image retrieval.
+In image retrieval,
 we are given a collection of reference images and a query image.
 We aim to rank the reference images by similarity to the query image.
 Usually, in image retrieval, reference images are not labeled or loosely
@@ -56,9 +57,9 @@ we only consider the highest ranked image, which should represent the
 instance to retrieve.
 
 % TODO possibly put this into different section
-Finally, to allow fast evaluation of the system, our goal is to develop
+Finally, to allow fast comparison between images, our goal is to develop
 a system that provides a single descriptor for each image, which should
-be small enough to be easily stored for all reference images and fast
+be small enough to be easily stored for all reference images and be fast
 to compute.
 Two images should be compared according to a distance metric, which should
 also be fast to compute. This requirement is important, since a possible
@@ -72,7 +73,7 @@ real-time or close to real-time.
 For all of the problems described above, deep learning approaches
 based on convolutional neural networks (CNNs) have recently obtained
 the state-of-the-art results. One of the drawbacks of deep CNNs is that
-they require large amounts of data to be trained.
+they require large amounts of data with high variability to be trained.
 
 In our research problem in particular, we do not
 have large enough amounts of data available to fully train a deep CNN.
